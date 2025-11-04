@@ -26,7 +26,7 @@ class ReshadeInstaller:
     shutil.copytree('./reshade/effects/Shaders', f'{self.game_source}/Shaders', dirs_exist_ok=True)
     shutil.copytree('./reshade/effects/Textures', f'{self.game_source}/Textures', dirs_exist_ok=True)
 
-    yield "\nInstallation completed!"
+    yield "\n<font color=#41d331>Installation was a success ❤️</font>"
 
   # Debug funtion
   def __str__(self):
@@ -57,7 +57,7 @@ class ReshadeInstallerBuilder(QObject):
       self.installation_progress_updated.emit(f"Searching for the Reshade.exe into {search_path}")
       self.find_and_unzip(search_path, pattern)
       self.clone_shaders()
-      self.installation_progress_updated.emit("Ready to install!")
+      self.installation_progress_updated.emit("<font color=#41d331>Ready to install!</font>")
     except Exception as error:
       self.installation_progress_updated.emit(f"ERROR: setup failed because of {error}")
     finally:
@@ -151,7 +151,6 @@ class ReshadeInstallerBuilder(QObject):
 
   def _unzip_reshade(self, source):
     if not os.path.isdir('./reshade'): # Check if directory exists
-      # self.installation_progress_updated.emit("Extracting Reshade executable...")
       with ZipFile(source, 'r') as zip_object:
         zip_object.extractall("./reshade")
 
@@ -171,40 +170,4 @@ class ReshadeInstallerBuilder(QObject):
       os.system("git clone https://github.com/crosire/reshade-shaders.git ./reshade/effects")
     else:    
       print("We already have shaders downloaded.")
-
-# Keep to debuggin...
-# if __name__ == "__main__":
-#   app = QApplication(sys.argv)
-
-#   builder = ReshadeInstallerBuilder()
-
-#   def debug_message(message):
-#     print(f"SIGNAL: {message}")
-
-#   builder.installation_progress_updated.connect(debug_message)
-
-#   RESHADE_SEARCH_PATH = '/home'
-#   RESHADE_PATTERN = 'ReShade_Setup*.exe'
-
-#   user_game_dir = str(input("Qual o diretório do seu jogo: ")).strip()
-#   user_game_bits = "64bit"
-#   user_game_api = "Vulkan"
-
-#   try:
-#       builder.find_and_unzip(RESHADE_SEARCH_PATH, RESHADE_PATTERN)
-#       builder.clone_shaders()
       
-#       builder.set_game_architecture(user_game_bits)
-#       builder.set_game_api(user_game_api)
-#       builder.set_game_directory(user_game_dir)
-  
-      
-#       installer = builder.get_reshade_product()
-#       print(installer) 
-      
-#       for message in installer.install():
-#         debug_message(message)
-#   except Exception as e:
-#       print(f"\n--- ERROR ---", file=sys.stderr)
-#       print(f"{e}", file=sys.stderr)
-#       sys.exit(1)
