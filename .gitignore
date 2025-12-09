@@ -3,3 +3,7 @@ reshade
 ./reshade
 .reshade/
 env
+r_e
+r_e/*
+__pycache__
+__pycache__/*
