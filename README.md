@@ -29,7 +29,7 @@ The project of course is not currently done, look at monstrosity of GUI... Also 
 
  - [x] Basic functionalities
  - [x] Redo GUI
- - [ ] Automatically verify the application architecture: it can be done by looking into some of the first bytes of the game executable binary, they are located  on the COFF Header.
+ - [x] Automatically verify the application architecture: it can be done by looking into some of the first bytes of the game executable binary, they are located  on the COFF Header. (Thanks to Jhen - https://github.com/Dzavoy)
  - [ ] Flatpak
  - [ ] appImage
 
