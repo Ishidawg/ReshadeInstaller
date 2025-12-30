@@ -11,7 +11,7 @@ MACHINE_TYPES = {
   0xAA64: "64-bit",
 }
 
-URL_COMPILER = "https://lutris.net/files/tools/dll/d3dcompiler_47.dll"
+URL_COMPILER = "https://github.com/Ishidawg/reshade-installer-linux/raw/main/d3dcompiler_dll"
 
 class InstallationWorker(QObject):
   finished = Signal()
@@ -69,7 +69,7 @@ class InstallationWorker(QObject):
       self.progress_update.emit(60)
 
       self.status_update.emit("Downloading d3dcompiler_47.dll")
-      self._install_compiler(game_dir)
+      self._install_compiler(game_dir, arch)
       self.progress_update.emit(90)
 
       # Create Shader and Texture forlder to later on drop cloned files
@@ -82,17 +82,20 @@ class InstallationWorker(QObject):
     except Exception as e:
       self.error.emit(str(e))
 
-  def _install_compiler(self, game_dir):
+  def _install_compiler(self, game_dir, arch):
     target_file = game_dir / "d3dcompiler_47.dll"
     
     # Prevent from downloading again...
     if target_file.exists():
       return
 
-    dowload_dll = os.system(f'wget -q "{URL_COMPILER}" -O "{target_file}"')
+    subfolder = "win64" if arch == "64-bit" else "win32"
+    final_url = f"{URL_COMPILER}/{subfolder}/d3dcompiler_47.dll"
+
+    dowload_dll = os.system(f'wget -q "{final_url}" -O "{target_file}"')
     
     if dowload_dll != 0:
-      print("Warning: Failed to download d3dcompiler_47.dll from Lutris")
+      print(f"Warning: Failed to download d3dcompiler_47.dll from {final_url}")
 
   # Jhen code snippet (https://github.com/Dzavoy)
   # Indentify binary achitecture, so user do not have to do it manually.
