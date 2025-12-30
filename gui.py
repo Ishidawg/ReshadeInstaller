@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from PySide6.QtCore import Qt, QThread, Signal
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QIcon
 
 # Import widgets
 from widgets.start_widget import StartWidget
@@ -199,6 +199,12 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
   app = QApplication(sys.argv)
+
+  local_dir = os.path.dirname(__file__)
+  icon_path = os.path.join(local_dir, "assets", "logo.png")
+
+  if os.path.exists(icon_path):
+    app.setWindowIcon(QIcon(icon_path))
 
   window = MainWindow()
   window.show()
