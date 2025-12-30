@@ -1,4 +1,5 @@
 import sys
+import os
 
 from PySide6.QtWidgets import (
   QApplication,
@@ -10,25 +11,32 @@ from PySide6.QtWidgets import (
   QWidget,
   QLineEdit,
   QRadioButton,
-  QFileDialog
+  QFileDialog,
+  QProgressBar
 )
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThread, Signal
+
+from scripts_core.installation_core import InstallationWorker
 
 # l:    label
 # c:    container
 # ly:   layout
 # b:    button
 # r:    radio
+# p:    progress
 
 class InstallationWidget(QWidget):
+  installation_finished = Signal(bool)
 
   def __init__(self):
     super().__init__()
 
+    self.reshade_source_dir = None
+
     # Create layout and containers
     ly = QVBoxLayout()
-    ly.setAlignment(Qt.AlignTop | Qt.AlignmentFlag.AlignLeft)
+    ly.setAlignment(Qt.AlignTop | Qt.AlignmentFlag.AlignCenter)
 
     c_browse = QWidget()
     c_browse.setContentsMargins(0, 0, 0, 40)
@@ -40,7 +48,7 @@ class InstallationWidget(QWidget):
     ly_api.setSpacing(40)
 
     # Widgets
-    l_exe = QLabel("Select games executable")
+    l_exe = QLabel("Select game executable")
     l_exe.setContentsMargins(10, 0, 0, 0)
     l_exe.setWordWrap(True)
     l_exe.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -49,7 +57,7 @@ class InstallationWidget(QWidget):
     self.line_edit = QLineEdit()
     self.browse_button = QPushButton("Browse")
 
-    l_api = QLabel("Select games API")
+    l_api = QLabel("Select game API")
     l_api.setContentsMargins(10, 0, 0, 0)
     l_api.setWordWrap(True)
     l_api.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -60,8 +68,12 @@ class InstallationWidget(QWidget):
     self.r_d3d10 = QRadioButton("DirectX 10")
     self.r_vulkan.setChecked(True)
 
-    # Connect Functions
-    self.browse_button.clicked.connect(self.on_browse_clicked)
+    # Progress bar
+    self.p_bar = QProgressBar()
+    self.p_bar.setTextVisible(True)
+    self.p_bar.setAlignment(Qt.AlignCenter | Qt.AlignmentFlag.AlignCenter)
+    self.p_bar.setRange(0, 100)
+    self.p_bar.setValue(0)
 
     # Add widgets
     ly.addWidget(l_exe)
@@ -75,49 +87,72 @@ class InstallationWidget(QWidget):
     for api in (self.r_vulkan, self.r_d3d9, self.r_d3d10):
       ly_api.addWidget(api)
 
+    ly.addWidget(self.p_bar)
+
     self.setLayout(ly)
 
+    # Connect Functions
+    self.browse_button.clicked.connect(self.on_browse_clicked)
+
+  # public function
   def on_browse_clicked(self):
-    directory = QFileDialog.getOpenFileName(self, "Select the game executable")
+    file_name, _ = QFileDialog.getOpenFileName(self, "Select game executable", os.path.expanduser("~"), "Executables (*.exe)")
+    
+    if file_name:
+      self.line_edit.setText(file_name)
 
-    if directory:
-      self.line_edit.setText(directory[0])
+  def set_reshade_source(self, path):
+    self.reshade_source_dir = path
 
-  def on_next_clicked(self):
-    try:
-      game_dir = self.line_edit.text().strip()
+  def process_installation(self):
+    game_exe = self.line_edit.text()
 
-      if not game_dir:
-        raise ValueError("ERROR: Game directory cannot be empty")
+    if not game_exe or not os.path.exists(game_exe):
+      self.p_bar.setFormat("Error: Invalid game path!")
+      self.p_bar.setValue(0)
+      self.installation_finished.emit(False)
+      return
 
-      api = None
+    if not self.reshade_source_dir:
+      self.p_bar.setFormat("Error: Reshade was not found!")
+      self.installation_finished.emit(False)
+      return
 
-      if self.vulkan_radio.isChecked():
-        api = "Vulkan"
-      elif self.d3d9_radio.isChecked():
-        api = "d3d9"
-      elif self.d3d10_radio.isChecked():
-        api = "d3d10"
+    api = "Vulkan"
+    if self.r_d3d9.isChecked(): api = "DirectX 9"
+    elif self.r_d3d10.isChecked(): api = "DirectX 10"
 
-      self.install_button.setEnabled(False) # Prevents double click that can be fuck stuff up
-      self.update_status("Starting Installation...")
+    # Thread Setup
+    self.thread = QThread()
+    self.worker = InstallationWorker()
+    self.worker.setup(self.reshade_source_dir, game_exe, api)
+    self.worker.moveToThread(self.thread)
 
-      # Calling builder that will emit signals to the update_status
-      self.builder.set_game_architecture(game_dir)
-      self.builder.set_game_api(api)
-      self.builder.set_game_directory(os.path.dirname(game_dir)) # Sendind the entire path
+    self.thread.started.connect(self.worker.run)
 
-      reshade_installer = self.builder.get_reshade_product()
-      self.update_status(f"Used settings: {reshade_installer}")
+    self.worker.status_update.connect(self.update_bar_text)
+    self.worker.progress_update.connect(self.p_bar.setValue)
+    
+    self.worker.finished.connect(self.on_success)
+    self.worker.error.connect(self.on_error)
 
-      for message in reshade_installer.install():
-        self.update_status(message)
-    except Exception as error:
-      self.update_status(f"ERROR: {error}")
-    finally:
-      self.install_button.setEnabled(True) # Enables the button when the installation ends
+    self.worker.finished.connect(self.thread.quit)
+    self.worker.finished.connect(self.worker.deleteLater)
+    self.thread.finished.connect(self.thread.deleteLater)
 
+    self.thread.start()
 
+  def update_bar_text(self, text):
+    self.p_bar.setFormat(f"{text} (%p%)")
 
+  def on_success(self):
+    self.p_bar.setValue(100)
+    self.p_bar.setFormat("Installation Successful!")
+    self.installation_finished.emit(True)
 
-
+  def on_error(self, err_msg):
+    self.p_bar.setValue(0)
+    self.p_bar.setFormat("Error")
+    self.p_bar.setToolTip(f"Detail: {err_msg}")
+    self.installation_finished.emit(False)
+    

@@ -1,4 +1,4 @@
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Signal, QThread
 from zipfile import ZipFile
 from pathlib import Path
 import os
@@ -16,8 +16,32 @@ class ReshadeDraft:
     if not self.reshade_path:
       raise ValueError("ERROR: Failed to draft")
 
+class DownloadWorker(QObject):
+  finished = Signal(object)
+  status_update = Signal(str)
+  error = Signal(str)
+
+  def __init__(self):
+    super().__init__()
+    self.builder = ReshadeDraftBuilder()
+
+  def run(self):
+    try:
+      self.status_update.emit("Checking/Downloading Reshade...")
+      self.builder.run_draft()
+      
+      draft = self.builder.draft
+      if draft.reshade_path:
+        self.status_update.emit("Download/Search Complete!")
+        self.finished.emit(draft)
+      else:
+        self.error.emit("Could not find ReShade executable.")
+    except Exception as e:
+      self.error.emit(str(e))
+
 class ReshadeDraftBuilder(QObject):
   def __init__(self):
+    super().__init__()
     self.draft = ReshadeDraft()
     self.reshade_temp_path = None
 
@@ -31,33 +55,37 @@ class ReshadeDraftBuilder(QObject):
       else:
         self.draft.reshade_path = self.reshade_temp_path
     except Exception as error:
-      print(f"ERROR: {error}")
+      pass
+      # print(f"ERROR: {error}")
 
   # Public methods
   def download_reshade(self, url: str):
     try:
       self._download_reshade(url)
-      print("DOWNLOAD SUCCESS!")
+      # print("DOWNLOAD SUCCESS!")
     except Exception as error:
-      print("DOWNLOAD FAILED!")
+      pass
+      # print("DOWNLOAD FAILED!")
 
     return self
 
   def unzip_reshade(self, reshade_path):
     try:
       self._unzip_reshade(reshade_path)
-      print("UNZIP SUCCESS!")
+      # print("UNZIP SUCCESS!")
     except Exception as error:
-      print("UNZIP FAILED!")
+      pass
+      # print("UNZIP FAILED!")
 
     return self
 
   def find_reshade(self):
     try:
       self.draft.reshade_path = self._find_reshade(START_PATH, PATTERN)
-      print("SEARCH SUCCESS!")
+      # print("SEARCH SUCCESS!")
     except Exception as error:
-      print("SEARCH FAILED!")
+      pass
+      # print("SEARCH FAILED!")
 
   # Private methods
   def _find_reshade(self, start_path: Path, exe_pattern: str):
@@ -67,7 +95,7 @@ class ReshadeDraftBuilder(QObject):
     try: 
       matches = list(start.rglob(pattern))
     except PermissionError:
-      print("ERROR: Not allowed due to permission stuff")
+      # print("ERROR: Not allowed due to permission stuff")
       return None
 
     if not matches:
@@ -78,7 +106,7 @@ class ReshadeDraftBuilder(QObject):
   def _download_reshade(self, url: str):
     if not self._find_reshade(START_PATH, PATTERN):
       try:
-        os.system(f"wget {url}")
+        os.system(f"wget -q {url}")
         self.reshade_temp_path = self._find_reshade(START_PATH, PATTERN)
       except Exception as e:
         print(f"ERROR: {e}")
@@ -90,11 +118,3 @@ class ReshadeDraftBuilder(QObject):
     if not os.path.isdir(LOCAL_RESHADE_DIR):
       with ZipFile(reshade_path, 'r') as zip_object:
         zip_object.extractall(LOCAL_RESHADE_DIR)
-
-if __name__ == "__main__":
-  builder = ReshadeDraftBuilder()
-  builder.run_draft()
-  
-  draft = builder.draft
-  draft.draft_complete()
-  print(f"final executable: {draft.reshade_path}")

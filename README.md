@@ -4,13 +4,20 @@
 > *Intented to be used with proton applications*
 
 ## About
-This is a university project that needs to have **three design patterns** of my choice *(Factory, Builder and Observer)*. The idea behind was to do reshade installation a bit easier on linux, as well understand about the design patterns. In fact it is intended to work with proton applications, but it may also work with apps that uses Wine. Also, no IA.
+This is a university project that needs to have **three design patterns** of my choice *(Factory, Builder and Observer)*. The idea behind was to do reshade installation a bit easier on linux, as well understand about the design patterns. In fact it is intended to work with proton applications, but it may also work with apps that uses Wine. Also, no IA generated code.
 
 ## Why python?
 _Why not?..._ I actually started the development in Java _(21)_ but due to limited time, python was a great choice because I write less and do _almost_ the same. **I dislike the sytax tho..**
 
 ## Why Qt?
 _Why n-..._ I never built any GUI with **Qt** or **GTK**, so as I use *GNOME* on my daily drive machine, I thought of using it, but I could not get it to work in due time, so I choose Qt that I have seen awesome applications using it too, like: _PCSX2, Duckstation and ShadPS4..._
+
+## Important
+Reshade on linux works because it overrides wine dll `d3dcompiler_47.dll` _(that I clone from Lutris repo)_, so it is **recommended to have winetricks** installed, I thought of place the dll alongside the game executable to workaround this... Also, it is recommended to add command to steam games launch options, why I'm say that _'is recommended'_? Because **I do not add them**, just have winetricks installed and works perfectly. Let's say that you are installing reshade on a game that uses *DXVK* like **Dark Souls: Remastered**, then the dll will be `dxgi.dll`, so you put: `WINEDLLOVERRIDES="d3dcompiler_47=n;dxgi=n,b;"`.
+
+<div align="center">
+    <img alt="Windows Folder" src="https://i.imgur.com/B0V7ocQ.png" width="800" />
+</div>
 
 ## Usage
 *This will only be necessary until I have any packages, appImage or Flatpak.*
@@ -30,9 +37,6 @@ The project of course is not currently done, look at monstrosity of GUI... Also 
  - [x] Basic functionalities
  - [x] Redo GUI
  - [x] Automatically verify the application architecture: it can be done by looking into some of the first bytes of the game executable binary, they are located  on the COFF Header. (Thanks to Jhen - https://github.com/Dzavoy)
+ - [x] Rewrite whole app with new pages
  - [ ] Flatpak
  - [ ] appImage
-
-### New UI
-I have spent some time on UI/UX software trying to make it look not to bad, this is what I want to do:
-<img width="1467" height="919" alt="image" src="https://github.com/user-attachments/assets/b5947595-d14e-4799-9b46-204bb56dc3f8" />

@@ -1,213 +1,206 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QWidget, QHBoxLayout, QVBoxLayout, QFileDialog, QLineEdit, QPushButton, QRadioButton
-from PySide6.QtGui import QFont, QPixmap
-from core import ReshadeInstallerBuilder
-from PySide6.QtCore import Qt, QThread
-import sys
 import os
+import sys
+from PySide6.QtWidgets import (
+  QApplication,
+  QMainWindow,
+  QLabel,
+  QWidget,
+  QHBoxLayout,
+  QVBoxLayout,
+  QPushButton
+)
 
-class TitleLabel(QLabel):
-  def __init__(self, font, text):
-    super().__init__(f"{text}")
-    self.setAlignment(Qt.AlignCenter)
-    self.setContentsMargins(0, 30, 0, 0)
-    self.setFont(font)
+from PySide6.QtCore import Qt, QThread, Signal
+from PySide6.QtGui import QFont
 
-class SubTitleLabel(QLabel):
-  def __init__(self, font, text):
-    super().__init__(f"{text}")
-    self.setAlignment(Qt.AlignLeft)
-    self.setFont(font)
-    self.setContentsMargins(34, 0, 0, 0)
-    self.setFixedHeight(28)
+# Import widgets
+from widgets.start_widget import StartWidget
+from widgets.installation_widget import InstallationWidget
+from widgets.clone_widget import CloneShaderWidget
 
-class BodyLabel(QLabel):
-  def __init__(self, font, text):
-    super().__init__(f"{text}")
-    self.setAlignment(Qt.AlignCenter)
-    self.setWordWrap(True)
-    self.setFont(font)
+# l:    label
+# c:    container
+# ly:   layout
+# b:    button
 
-class LabelFactory():
-  def createLabel(self, label_type, font, text):
-    match label_type:
-      case "title":       return TitleLabel(font, text)
-      case "sub_title":   return SubTitleLabel(font, text)
-      case "body":        return BodyLabel(font, text)
-
-    return print("You did not use a valid label_type")
-
-
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow): 
 
   def __init__(self):
     super().__init__()
 
+    # Set Widgets
+    S_FIRST = StartWidget()
+    S_SECOND = InstallationWidget()
+    S_THIRD = CloneShaderWidget()
+
+    self.is_start_ready = False
+    S_FIRST.process_finished.connect(self.on_start_finished)
+
+    self.widgets = [S_FIRST, S_SECOND, S_THIRD]
+    self.widget_index = 0
+
+    self.current_widget = self.widgets[0]
+
     WINDOW_WIDTH = 620
-    WINDOW_HEIGHT = 760
-
-    # Fonts style (where it used - what font is - font wheight)
-    TITLE_OVERPASS_FONT = QFont("Overpass", 24, QFont.Bold)
-    TITLE_OVERPASS_FONT_200 = QFont("Overpass", 13, QFont.ExtraLight)
-    SUBTITLE_OVERPASS_FONT_400 = QFont("Overpass", 18, QFont.Normal)
-    GLOBAL_OVERPASS_FONT = QFont("Overpass", 11)
-
-    self.labelFactory = LabelFactory()
+    WINDOW_HEIGHT = 400
 
     self.setWindowTitle("Reshade Installer")
     self.setFixedWidth(WINDOW_WIDTH)
     self.setFixedHeight(WINDOW_HEIGHT)
-    self.setFont(GLOBAL_OVERPASS_FONT)
 
     # Main container
-    container = QWidget()
-    container.setContentsMargins(40, 0, 40, 0) # Set vertical margins
-    self.setCentralWidget(container)
-    main_layout = QVBoxLayout(container)
+    c_main = QWidget()
+    c_main.setContentsMargins(40, 0, 40, 0)
+    self.setCentralWidget(c_main)
+    self.ly_main = QVBoxLayout(c_main)
 
-    # Inner Containers
-    browse_container = QWidget()
-    browse_container.setContentsMargins(0, 0, 0, 40)
-    browse_layout = QHBoxLayout(browse_container)
+    # Fixed text container and labels
+    c_top_text = QWidget()
+    c_top_text.setContentsMargins(0, 0, 0, 40)
+    ly_top_text = QVBoxLayout(c_top_text)
+    ly_top_text.setAlignment(Qt.AlignTop | Qt.AlignmentFlag.AlignCenter)
 
-    rendering_container = QWidget()
-    rendering_container.setContentsMargins(0, 0, 0, 40)
-    rendering_layout = QHBoxLayout(rendering_container)
-    rendering_layout.setAlignment(Qt.AlignLeft)
+    l_title = QLabel("Reshade Installer")
+    l_title.setStyleSheet("font-size: 22pt;")
+    l_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-    # Main label stuff
-    ## Title
-    label_title = self.labelFactory.createLabel("title", TITLE_OVERPASS_FONT, "Reshade installer")
-    label_title.setFixedHeight(60)
-    label_title_bottom = self.labelFactory.createLabel("body", TITLE_OVERPASS_FONT_200, "intended just for pronton games")
-    label_title_bottom.setFixedHeight(28)
+    l_subtitle = QLabel("Intended for proton games")
+    l_subtitle.setStyleSheet("font-size: 12pt; font-weight: 100;")
+    l_subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+    # Fixed button container and thy self
+    b_bottom_buttons = QWidget()
+    b_bottom_buttons.setContentsMargins(0, 0, 0, 10)
+    ly_bottom_buttons = QHBoxLayout(b_bottom_buttons)
+    ly_bottom_buttons.setAlignment(Qt.AlignBottom | Qt.AlignmentFlag.AlignCenter)
+
+    self.b_next = QPushButton("Next", self)
+    self.b_back = QPushButton("Back", self)
+
+    # AddWidgets
+    self.ly_main.addWidget(c_top_text)
+    self.ly_main.addWidget(self.current_widget)
+    self.ly_main.addWidget(b_bottom_buttons)
+
+    # Fixed text
+    ly_top_text.addWidget(l_title)
+    ly_top_text.addWidget(l_subtitle)
+    ly_bottom_buttons.addWidget(self.b_back)
+    ly_bottom_buttons.addWidget(self.b_next)
     
-    ## Project description
-    label_description = self.labelFactory.createLabel("body", TITLE_OVERPASS_FONT_200, "This is a unofficial reshade installer for linux, intented to be used with\nproton applications, but it may also work with wine games.")
-    label_description.setFixedHeight(120)
+    self.b_next.clicked.connect(self.on_next_clicked)
+    self.b_back.clicked.connect(lambda: self.change_widget(-1))
+    self.update_buttons()
 
-    ## Directory step
-    label_directory_step = self.labelFactory.createLabel("sub_title", SUBTITLE_OVERPASS_FONT_400, "Select games executable")
-    self.line_edit = QLineEdit()
-    self.browse_button = QPushButton("Browse")
+  def on_next_clicked(self):
+    if self.widget_index == 0: # Start Widget
+      reshade_path = "./reshade"
+      
+      installation_widget = self.widgets[1]
+      installation_widget.set_reshade_source(reshade_path)
+      
+      self.change_widget(1)
+    elif self.widget_index == 1: # Install Widget
+      self.b_next.setEnabled(False)
+      
+      installation_widget = self.widgets[1]
+      
+      try:
+        installation_widget.installation_finished.disconnect()
+      except: pass
+      installation_widget.installation_finished.connect(self.on_installation_step_finished)
+      
+      installation_widget.process_installation()
+    elif self.widget_index == 2: # Clone Widget
+      self.b_next.setEnabled(False)
+      self.b_back.setEnabled(False)
+      
+      clone_widget = self.widgets[2]
+      
+      try: 
+        clone_widget.cloning_finished.disconnect()
+      except: 
+        pass
 
-    folder_icon_draw = QLabel(self)
-    folder_icon = QPixmap("./images/step_icons/folder_icon.png")
-    folder_icon_draw.setPixmap(folder_icon)
-    folder_icon_draw.setGeometry(56, 230, folder_icon_draw.width(), folder_icon_draw.height())
+      clone_widget.cloning_finished.connect(self.on_cloning_finished)
+      
+      clone_widget.process_cloning()
 
-    # Rendering API step
-    label_api_step = self.labelFactory.createLabel("sub_title", SUBTITLE_OVERPASS_FONT_400, "Select games rendering API")
-    self.vulkan_radio = QRadioButton("Vulkan")
-    self.d3d9_radio = QRadioButton("DirectX 9")
-    self.d3d10_radio = QRadioButton("DirectX 10")
-    self.vulkan_radio.setChecked(True)
+  def on_installation_step_finished(self, success):
+    self.b_next.setEnabled(True)
+    if success:
+      # Grab game_dir and executable path
+      installation_widget = self.widgets[1]
+      game_exe_path = installation_widget.line_edit.text()
+      game_dir = os.path.dirname(game_exe_path)
+      
+      # pass to clone widget
+      clone_widget = self.widgets[2]
+      clone_widget.set_game_directory(game_dir)
 
-    api_icon_draw = QLabel(self)
-    api_icon = QPixmap("./images/step_icons/api_icon.png")
-    api_icon_draw.setPixmap(api_icon)
-    api_icon_draw.setGeometry(56, 405, api_icon_draw.width(), api_icon_draw.height())
+      self.change_widget(1)
+    else:
+      pass
+  
+  def on_cloning_finished(self, success):
+    if success:
+      self.b_next.setText("Close")
+      self.b_next.setEnabled(True)
+      self.b_next.clicked.disconnect()
+      self.b_next.clicked.connect(self.close)
+    else:
+      self.b_next.setEnabled(True)
+      self.b_back.setEnabled(True)
 
-    # Install
-    self.install_button = QPushButton("Install Reshade")
+  def change_widget(self, direction = 1):
+    # Deletes previous widget, if I change my mind...
+    # self.ly_main.removeWidget(self.current_widget)
+    # self.current_widget.deleteLater()
 
-    # Status: means what's going on under the hood
-    self.status_label = self.labelFactory.createLabel("body", GLOBAL_OVERPASS_FONT, "Installed!")
-    self.status_label.setAlignment(Qt.AlignCenter)
-    self.status_label.setContentsMargins(0, 40, 0, 5)
+    self.current_widget.hide()
 
-    # Draw stuff
-    main_layout.addWidget(label_title)
-    main_layout.addWidget(label_title_bottom)
-    main_layout.addWidget(label_description)
-    main_layout.addWidget(label_directory_step)
+    if direction == 1:
+      self.widget_index = self.widget_index + 1
+    else:
+      self.widget_index = self.widget_index - 1
 
-    main_layout.addWidget(browse_container)
-    browse_layout.addWidget(self.line_edit)
-    browse_layout.addWidget(self.browse_button)
+    self.current_widget = self.widgets[self.widget_index]
 
-    main_layout.addWidget(label_api_step)
-    main_layout.addWidget(rendering_container)
+    # Insert widget
+    # 1 refers to self.current_widget [0: text, 1: dynamic_widget, 2: buttons]
+    self.ly_main.removeWidget(self.current_widget)
+    self.ly_main.insertWidget(1, self.current_widget)
+    self.current_widget.show()
     
-    for rendering in (self.vulkan_radio, self.d3d9_radio, self.d3d10_radio):
-      rendering_layout.addWidget(rendering)
+    self.update_buttons()
 
-    main_layout.addWidget(self.install_button)
-    main_layout.addWidget(self.status_label)
+  def on_start_finished(self, success):
+    if success:
+      self.is_start_ready = True
+      self.update_buttons()
 
-    # Create a 'core' instance
-    self.builder = ReshadeInstallerBuilder()
+  def update_buttons(self):
+    if self.widget_index == 0:
+      self.b_back.setEnabled(False)
+    else:
+      self.b_back.setEnabled(True)
 
-    # Connects the installation progress to the update_status label
-    self.builder.installation_progress_updated.connect(self.update_status)
+    if self.widget_index == len(self.widgets) - 1:
+      self.b_next.setEnabled(True)
+      self.b_next.setText("Install")
+    else:
+      self.b_next.setEnabled(True)
+      self.b_next.setText("Next")
 
-    # Creates a thread and moves the builder to it
-    self.installation_thread = QThread()
-    self.builder.moveToThread(self.installation_thread)
-
-    # Connects the signal to the thread
-    self.installation_thread.started.connect(self.builder.run_initial_setup)
-
-    # Makes thread stop when installetion completes ALSO clean memory where the thread was
-    self.builder.finished.connect(self.installation_thread.quit)
-    self.builder.finished.connect(self.builder.deleteLater) # self.builder DELETES THE builder, otherwise the application will close
-    self.installation_thread.finished.connect(self.installation_thread.deleteLater)
-
-    # Connect UI to observable slots
-    self.install_button.clicked.connect(self.on_install_clicked)
-    self.browse_button.clicked.connect(self.on_browse_clicked)
-
-    self.installation_thread.start()
-
-  def update_status(self, message: str):
-    self.status_label.setText(message)
-    QApplication.processEvents() # Ensure the UI updates
-
-  def on_browse_clicked(self):
-    directory = QFileDialog.getOpenFileName(self, "Select the game executable")
-
-    if directory:
-      self.line_edit.setText(directory[0])
-
-  def on_install_clicked(self):
-    try:
-      game_dir = self.line_edit.text().strip()
-
-      if not game_dir:
-        raise ValueError("ERROR: Game directory cannot be empty")
-
-      api = None
-
-      if self.vulkan_radio.isChecked():
-        api = "Vulkan"
-      elif self.d3d9_radio.isChecked():
-        api = "d3d9"
-      elif self.d3d10_radio.isChecked():
-        api = "d3d10"
-
-      self.install_button.setEnabled(False) # Prevents double click that can be fuck stuff up
-      self.update_status("Starting Installation...")
-
-      # Calling builder that will emit signals to the update_status
-      self.builder.set_game_architecture(game_dir)
-      self.builder.set_game_api(api)
-      self.builder.set_game_directory(os.path.dirname(game_dir)) # Sendind the entire path
-
-      reshade_installer = self.builder.get_reshade_product()
-      self.update_status(f"Used settings: {reshade_installer}")
-
-      for message in reshade_installer.install():
-        self.update_status(message)
-    except Exception as error:
-      self.update_status(f"ERROR: {error}")
-    finally:
-      self.install_button.setEnabled(True) # Enables the button when the installation ends
+      if self.widget_index == 0:
+        self.b_next.setEnabled(self.is_start_ready)
+      else:
+        self.b_next.setEnabled(True)
 
 if __name__ == "__main__":
   app = QApplication(sys.argv)
-  
-  with open("style.css", "r") as file:
-    app.setStyleSheet(file.read())
 
   window = MainWindow()
   window.show()
   sys.exit(app.exec())
+  
