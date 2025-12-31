@@ -20,16 +20,18 @@ Reshade on linux works because it overrides wine dll `d3dcompiler_47.dll` _(that
 </div>
 
 ## Usage
-*This will only be necessary until I have any packages, appImage or Flatpak.*
+I think that th program is very intuitive, so if you already installed reshade before you will likely not have any problems.
 
- 1. Download Reshade from the official website: https://reshade.me/ <br>
-I did this because I saw this next to the download button: **Do NOT share the binaries or shader files. Link users to this website instead.**
+Even though, here is a video guide: https://youtu.be/tM0oJEPixzk
 
- 2. As this project was made in python with Qt, you will need to run `pip install PySide6` to install the lib for Qt **globally**, or you can do it on a **venv** if you want, so inside of the project folder:
-- create a venv: `python -m venv env`
-- activate it: `source env/bin/activate`
-- lib installation: `pip install PySide6`
-- run it: `python gui.py` or `python3 gui.py`
+
+### Descriptive guide:
+
+1. At first, the program will download the reshade from the official website, so you just **click next**.
+2. Select the game executable and the graphic API, you will likely want to **choose vulkan and click on next**. You can check [pcgamingwiki](https://www.pcgamingwiki.com/wiki/Home) if necessary.
+3. Select the shaders pack that you want and **click on install**.
+
+**After the installation process, open your game up, press the `HOME` key to open up reshade menu and go to `settings` tab, then add the folder `Shaders` and `Textures`.**
 
 ## Roadmap
 The project of course is not currently done, look at monstrosity of GUI... Also as my goal is to do reshade installation easier on linux, it would be fabulous if I reduce user steps, like selecting the application architecture and even cloning the repo. Why not do a flatpak of it also?
