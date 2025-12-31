@@ -20,9 +20,9 @@ Reshade on linux works because it overrides wine dll `d3dcompiler_47.dll` _(that
 </div>
 
 ## Usage
-I think that th program is very intuitive, so if you already installed reshade before you will likely not have any problems.
+I think that th program is very intuitive, so if you already installed reshade before you will likely not have any problems. Even though, here is a video guide: https://youtu.be/tM0oJEPixzk
 
-Even though, here is a video guide: https://youtu.be/tM0oJEPixzk
+**Download on [releases page](https://github.com/Ishidawg/reshade-installer-linux/releases).**
 
 
 ### Descriptive guide:
