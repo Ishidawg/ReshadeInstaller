@@ -1,7 +1,7 @@
 
 
 # Reshade Installer
-> *Intented to be used with proton applications*
+> *Intented to be used with proton applications, but it may also work with Wine*
 
 ## About
 This is a university project that needs to have **three design patterns** of my choice *(Factory, Builder and Observer)*. The idea behind was to do reshade installation a bit easier on linux, as well understand about the design patterns. In fact it is intended to work with proton applications, but it may also work with apps that uses Wine. Also, no IA generated code.
@@ -44,9 +44,14 @@ The project of course is not currently done, look at monstrosity of GUI... Also 
  - [x] Automatically verify the application architecture: it can be done by looking into some of the first bytes of the game executable binary, they are located  on the COFF Header. (Thanks to Jhen - https://github.com/Dzavoy)
  - [x] Rewrite whole app with new pages
  - [x] appImage
+ - [ ] Add OpenGL, DirecX 10/11/12
+ - [ ] Add suport to DirecX 8 games with d3d8to9
+ - [ ] Improve shaders download so the user can select many more shader repositories
  - [ ] Flatpak
 
  ## Sources
  I have uploaded the `d3dcompiler.dll` here so it never fails to download!
  - d3dcompiler.dll 64bit: https://lutris.net/files/tools/dll/d3dcompiler_47.dll
  - d3dcompiler.dll 32bit: https://download-installer.cdn.mozilla.net/pub/firefox/releases/62.0.3/win32/ach/Firefox%20Setup%2062.0.3.exe
+
+ To package as AppImage I've used [appimagetool](https://github.com/AppImage/appimagetool?tab=readme-ov-file).
