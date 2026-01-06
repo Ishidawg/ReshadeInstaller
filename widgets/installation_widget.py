@@ -99,7 +99,10 @@ class InstallationWidget(QWidget):
 
   # public function
   def on_browse_clicked(self):
-    file_name, _ = QFileDialog.getOpenFileName(self, "Select game executable", os.path.expanduser("~"), "Executables (*.exe)")
+    dialog_option = QFileDialog.Options()
+    dialog_option = dialog_option | QFileDialog.DontUseNativeDialog
+
+    file_name, _ = QFileDialog.getOpenFileName(self, "Select game executable", os.path.expanduser("~"), "Executables (*.exe)", options = dialog_option)
     
     if file_name:
       self.line_edit.setText(file_name)
