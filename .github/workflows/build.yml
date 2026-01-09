@@ -1,0 +1,73 @@
+name: Build AppImage
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install System Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libxcb-cursor0 libxcb-xinerama0 wget fuse
+
+    - name: Install Dependencies
+      run: |
+        pip install pyside6
+        pip install pyinstaller
+
+    - name: Create Executable
+      run: |
+        pyinstaller --noconfirm --onedir --windowed --clean \
+          --name "ReshadeInstaller" \
+          --add-data "assets:assets" \
+          --icon "assets/logo.png" \
+          gui.py
+
+    - name: Create AppDir structure
+      run: |
+        mkdir -p AppDir/usr/bin
+        mkdir -p AppDir/usr/lib
+        
+        cp -r dist/ReshadeInstaller/* AppDir/usr/bin/
+        
+        cp assets/logo.png AppDir/reshade-installer.png
+        
+        echo "[Desktop Entry]" > AppDir/reshade-installer.desktop
+        echo "Type=Application" >> AppDir/reshade-installer.desktop
+        echo "Name=Reshade Installer" >> AppDir/reshade-installer.desktop
+        echo "Exec=ReshadeInstaller" >> AppDir/reshade-installer.desktop
+        echo "Icon=reshade-installer" >> AppDir/reshade-installer.desktop
+        echo "Categories=Utility;Game;" >> AppDir/reshade-installer.desktop
+        echo "Terminal=false" >> AppDir/reshade-installer.desktop
+        
+        ln -sr AppDir/usr/bin/ReshadeInstaller AppDir/AppRun
+
+    - name: Bundle libxcb-cursor0 TO WORKS ON MINT 22
+      run: |
+        find /usr/lib -name "libxcb-cursor.so.0" -exec cp {} AppDir/usr/lib/ \;
+        find /usr/lib -name "libxcb-xinerama.so.0" -exec cp {} AppDir/usr/lib/ \;
+
+    - name: Creates AppImage
+      run: |
+        wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+        chmod +x appimagetool-x86_64.AppImage
+        
+        ARCH=x86_64 ./appimagetool-x86_64.AppImage AppDir
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ReshadeInstaller-AppImage
+        path: "*.AppImage"
