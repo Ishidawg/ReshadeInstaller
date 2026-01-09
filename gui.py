@@ -17,12 +17,12 @@ from PySide6.QtGui import QFont, QIcon
 from widgets.start_widget import StartWidget
 from widgets.installation_widget import InstallationWidget
 from widgets.clone_widget import CloneShaderWidget
+from widgets.wrapper_widget import WrapperWidget
 
 # l:    label
 # c:    container
 # ly:   layout
 # b:    button
-
 
 # To prevent failing on load the icon
 def get_localdir():
@@ -40,14 +40,17 @@ class MainWindow(QMainWindow):
     S_FIRST = StartWidget()
     S_SECOND = InstallationWidget()
     S_THIRD = CloneShaderWidget()
+    S_WRAPPER = WrapperWidget()
 
     self.is_start_ready = False
     S_FIRST.process_finished.connect(self.on_start_finished)
 
-    self.widgets = [S_FIRST, S_SECOND, S_THIRD]
+    self.widgets = [S_FIRST, S_SECOND, S_THIRD, S_WRAPPER]
     self.widget_index = 0
 
     self.current_widget = self.widgets[0]
+
+    self.current_api = None
 
     WINDOW_WIDTH = 620
     WINDOW_HEIGHT = 430
@@ -95,7 +98,7 @@ class MainWindow(QMainWindow):
     ly_top_text.addWidget(l_subtitle)
     ly_bottom_buttons.addWidget(self.b_back)
     ly_bottom_buttons.addWidget(self.b_next)
-    
+
     self.b_next.clicked.connect(self.on_next_clicked)
     self.b_back.clicked.connect(lambda: self.change_widget(-1))
     self.update_buttons()
@@ -103,37 +106,37 @@ class MainWindow(QMainWindow):
   def on_next_clicked(self):
     if self.widget_index == 0: # Start Widget
       reshade_path = "./reshade"
-      
+
       installation_widget = self.widgets[1]
       installation_widget.set_reshade_source(reshade_path)
-      
+
       self.change_widget(1)
     elif self.widget_index == 1: # Install Widget
       self.b_next.setEnabled(False)
-      
+
       installation_widget = self.widgets[1]
-      
+
       try:
         installation_widget.installation_finished.disconnect()
       except (RuntimeError, TypeError):
         pass
 
       installation_widget.installation_finished.connect(self.on_installation_step_finished)
-      
+
       installation_widget.process_installation()
     elif self.widget_index == 2: # Clone Widget
       self.b_next.setEnabled(False)
       self.b_back.setEnabled(False)
-      
+
       clone_widget = self.widgets[2]
-      
-      try: 
+
+      try:
         clone_widget.cloning_finished.disconnect()
-      except (RuntimeError, TypeError): 
+      except (RuntimeError, TypeError):
         pass
 
       clone_widget.cloning_finished.connect(self.on_cloning_finished)
-      
+
       clone_widget.process_cloning()
 
   def on_installation_step_finished(self, success):
@@ -143,7 +146,13 @@ class MainWindow(QMainWindow):
       installation_widget = self.widgets[1]
       game_exe_path = installation_widget.line_edit.text()
       game_dir = os.path.dirname(game_exe_path)
-      
+      game_api = installation_widget.selected_api
+
+      print(game_api)
+
+      self.current_api = game_api
+      print(self.current_api)
+
       # pass to clone widget
       clone_widget = self.widgets[2]
       clone_widget.set_game_directory(game_dir)
@@ -151,9 +160,13 @@ class MainWindow(QMainWindow):
       self.change_widget(1)
     else:
       pass
-  
+
   def on_cloning_finished(self, success):
     if success:
+
+      if self.current_api == "D3D 8":
+        self.change_widget(1)
+
       self.b_next.setText("Close")
       self.b_next.setEnabled(True)
       self.b_next.clicked.disconnect()
@@ -181,7 +194,7 @@ class MainWindow(QMainWindow):
     self.ly_main.removeWidget(self.current_widget)
     self.ly_main.insertWidget(1, self.current_widget)
     self.current_widget.show()
-    
+
     self.update_buttons()
 
   def on_start_finished(self, success):
@@ -190,6 +203,15 @@ class MainWindow(QMainWindow):
       self.update_buttons()
 
   def update_buttons(self):
+
+    # To fix closing on next text button
+    try:
+      self.b_next.clicked.disconnect()
+    except (RuntimeError, TypeError):
+      pass
+
+    self.b_next.clicked.connect(self.on_next_clicked)
+
     if self.widget_index == 0:
       self.b_back.setEnabled(False)
     else:
@@ -219,4 +241,4 @@ if __name__ == "__main__":
   window = MainWindow()
   window.show()
   sys.exit(app.exec())
-  
+

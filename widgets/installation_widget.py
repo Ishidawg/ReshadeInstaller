@@ -139,6 +139,7 @@ class InstallationWidget(QWidget):
       self.installation_finished.emit(False)
       return
 
+    self.selected_api = None
     available_api = {
       self.r_opengl: "OpenGL",
       self.r_d3d8: "D3D 8",
@@ -154,6 +155,8 @@ class InstallationWidget(QWidget):
       if r_api.isChecked():
         api = api_label
         break
+
+    self.selected_api = api
 
     # Thread Setup
     self.thread = QThread()

@@ -45,8 +45,8 @@ The project of course is not currently done, look at monstrosity of GUI... Also 
  - [x] Rewrite whole app with new pages
  - [x] appImage
  - [x] Add OpenGL, DirecX 10/11/12
+ - [x] Add suport to DirecX 8 games with d3d8to9
  - [ ] add an Uninstall feature
- - [ ] Add suport to DirecX 8 games with d3d8to9
  - [ ] Improve shaders download so the user can select many more shader repositories
  - [ ] Flatpak
 
