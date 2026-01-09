@@ -50,7 +50,7 @@ class MainWindow(QMainWindow):
     self.current_widget = self.widgets[0]
 
     WINDOW_WIDTH = 620
-    WINDOW_HEIGHT = 400
+    WINDOW_HEIGHT = 430
 
     self.setWindowTitle("Reshade Installer")
     self.setFixedWidth(WINDOW_WIDTH)

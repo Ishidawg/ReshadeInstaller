@@ -12,6 +12,7 @@ MACHINE_TYPES = {
 }
 
 URL_COMPILER = "https://github.com/Ishidawg/reshade-installer-linux/raw/main/d3dcompiler_dll"
+URL_D3D8TO9 = "https://github.com/crosire/d3d8to9/releases/download/v1.13.0/d3d8.dll"
 
 class InstallationWorker(QObject):
   finished = Signal()
@@ -23,7 +24,7 @@ class InstallationWorker(QObject):
     super().__init__()
     self.reshade_dir_path = None
     self.game_exe_path = None
-    self.api_choice = None 
+    self.api_choice = None
 
   def setup(self, reshade_dir, game_exe, api):
     self.reshade_dir_path = reshade_dir
@@ -39,7 +40,7 @@ class InstallationWorker(QObject):
       self.status_update.emit("Checking game architecture")
 
       game_path = Path(self.game_exe_path)
-      
+
       arch = self._get_executable_architecture(game_path)
       self.status_update.emit(f"Architecture detected (bits): {arch}")
       self.progress_update.emit(20)
@@ -50,10 +51,16 @@ class InstallationWorker(QObject):
       if not source_dll_path.exists():
         raise FileNotFoundError(f"Could not find {dll_source_name} in {self.reshade_dir_path}")
 
+      # Need to set game dir here at the top so I can use d3d8 wrapper into switch case
+      game_dir = game_path.parent
+
       dll_dest_name = ""
       match self.api_choice:
         case "OpenGL":
           dll_dest_name = "opengl32.dll"
+        case "D3D 8":
+          dll_dest_name = "d3d9.dll"
+          self._d3d8_wrapper(game_dir)
         case "D3D 9":
           dll_dest_name = "d3d9.dll"
         case "D3D 10":
@@ -65,8 +72,10 @@ class InstallationWorker(QObject):
         case _:
           raise ValueError(f"YET an nsupported API!")
 
-      game_dir = game_path.parent
+      # game_dir = game_path.parent
       dest_path = game_dir / dll_dest_name
+
+      # if self.api_choice == "D3D 9": self._d3d8_wrapper(self, game_dir)
 
       self.status_update.emit(f"Installing {dll_dest_name}")
       shutil.copyfile(source_dll_path, dest_path)
@@ -88,7 +97,7 @@ class InstallationWorker(QObject):
 
   def _install_compiler(self, game_dir, arch):
     target_file = game_dir / "d3dcompiler_47.dll"
-    
+
     # Prevent from downloading again...
     if target_file.exists():
       return
@@ -96,10 +105,21 @@ class InstallationWorker(QObject):
     subfolder = "win64" if arch == "64-bit" else "win32"
     final_url = f"{URL_COMPILER}/{subfolder}/d3dcompiler_47.dll"
 
-    dowload_dll = os.system(f'wget -q "{final_url}" -O "{target_file}"')
-    
-    if dowload_dll != 0:
+    download_dll = os.system(f'wget -q "{final_url}" -O "{target_file}"')
+
+    if download_dll != 0:
       print(f"Warning: Failed to download d3dcompiler_47.dll from {final_url}")
+
+  def _d3d8_wrapper(self, game_dir):
+    target_file = game_dir / "d3d8.dll"
+
+    if target_file.exists():
+      return
+
+    download_dll = os.system(f'wget -q "{URL_D3D8TO9}" -O "{target_file}"')
+
+    if download_dll != 0:
+      print(f"Warning: failed to download d3d8.dll wrapper from {URL_D3D8TO9}")
 
   # Jhen code snippet (https://github.com/Dzavoy)
   # Indentify binary achitecture, so user do not have to do it manually.
@@ -123,4 +143,4 @@ class InstallationWorker(QObject):
       machine: int = struct.unpack("<H", machine_bytes)[0]
 
     return MACHINE_TYPES.get(machine, "unknown")
-    
+

@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
   QPushButton,
   QVBoxLayout,
   QHBoxLayout,
+  QGridLayout,
   QWidget,
   QLineEdit,
   QRadioButton,
@@ -43,8 +44,10 @@ class InstallationWidget(QWidget):
     ly_browse = QHBoxLayout()
 
     c_api = QWidget()
-    ly_api = QHBoxLayout(c_api)
+    # ly_api = QHBoxLayout(c_api)
+    ly_api = QGridLayout(c_api)
     ly_api.setAlignment(Qt.AlignCenter | Qt.AlignmentFlag.AlignCenter)
+    # ly_api.setRowMinimumHeight(0, 100)
     ly_api.setSpacing(15)
 
     # Widgets
@@ -64,6 +67,7 @@ class InstallationWidget(QWidget):
     l_api.setStyleSheet("font-size: 12pt; font-weight: 100;")
 
     self.r_opengl = QRadioButton("OpenGL")
+    self.r_d3d8 = QRadioButton("D3D 8")
     self.r_d3d9 = QRadioButton("D3D 9")
     self.r_d3d10 = QRadioButton("D3D 10")
     self.r_d3d11 = QRadioButton("D3D 11")
@@ -88,10 +92,18 @@ class InstallationWidget(QWidget):
     ly.addWidget(l_api)
     ly.addWidget(c_api)
 
-    radio_api = [self.r_opengl, self.r_d3d9, self.r_d3d10, self.r_d3d11, self.r_vulkan]
-    
-    for api in (radio_api):
-      ly_api.addWidget(api)
+    # radio_api = [self.r_opengl, self.r_d3d8, self.r_d3d9, self.r_d3d10, self.r_d3d11, self.r_vulkan]
+
+    # for api in (radio_api):
+    #  ly_api.addWidget(api)
+
+    # Api grid
+    ly_api.addWidget(self.r_opengl, 0, 0)
+    ly_api.addWidget(self.r_d3d8, 0, 1)
+    ly_api.addWidget(self.r_d3d9, 0, 2)
+    ly_api.addWidget(self.r_d3d10, 1, 0)
+    ly_api.addWidget(self.r_d3d11, 1, 1)
+    ly_api.addWidget(self.r_vulkan, 1, 2)
 
     ly.addWidget(self.p_bar)
 
@@ -106,7 +118,7 @@ class InstallationWidget(QWidget):
     dialog_option = dialog_option | QFileDialog.DontUseNativeDialog
 
     file_name, _ = QFileDialog.getOpenFileName(self, "Select game executable", os.path.expanduser("~"), "Executables (*.exe)", options = dialog_option)
-    
+
     if file_name:
       self.line_edit.setText(file_name)
 
@@ -129,9 +141,10 @@ class InstallationWidget(QWidget):
 
     available_api = {
       self.r_opengl: "OpenGL",
-      self.r_d3d9:   "D3D 9",
-      self.r_d3d10:  "D3D 10",
-      self.r_d3d11:  "D3D 11",
+      self.r_d3d8: "D3D 8",
+      self.r_d3d9: "D3D 9",
+      self.r_d3d10: "D3D 10",
+      self.r_d3d11: "D3D 11",
       self.r_vulkan: "Vulkan/D3D 12"
     }
 
@@ -152,7 +165,7 @@ class InstallationWidget(QWidget):
 
     self.worker.status_update.connect(self.update_bar_text)
     self.worker.progress_update.connect(self.p_bar.setValue)
-    
+
     self.worker.finished.connect(self.on_success)
     self.worker.error.connect(self.on_error)
 
@@ -175,4 +188,4 @@ class InstallationWidget(QWidget):
     self.p_bar.setFormat("Error")
     self.p_bar.setToolTip(f"Detail: {err_msg}")
     self.installation_finished.emit(False)
-    
+
