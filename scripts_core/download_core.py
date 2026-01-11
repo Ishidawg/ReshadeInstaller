@@ -3,6 +3,13 @@ from zipfile import ZipFile
 from pathlib import Path
 import os
 
+# solve download on Fedora based (bazzite)
+import urllib.request
+import ssl
+
+# I know that this is a force security, probably a security issue to force download withous SSL...
+ssl._create_default_https_context = ssl._create_unverified_context
+
 RESHADE_URL = "https://reshade.me/downloads/ReShade_Setup_6.6.2.exe"
 START_PATH = os.path.expanduser("~/Downloads")
 PATTERN = "ReShade_Setup*.exe"
@@ -48,7 +55,7 @@ class ReshadeDraftBuilder(QObject):
   def run_draft(self):
     try:
       self.download_reshade(RESHADE_URL)
-      
+
       # Not good at all... sorry future me
       if self.reshade_temp_path:
         self.unzip_reshade(self.reshade_temp_path)
@@ -113,7 +120,12 @@ class ReshadeDraftBuilder(QObject):
   def _download_reshade(self, url: str):
     if not self._find_reshade(START_PATH, PATTERN):
       try:
-        os.system(f"wget -q {url} -P {START_PATH}")
+        # os.system(f"wget -q {url} -P {START_PATH}")
+        file_name = url.split('/')[-1]
+
+        destination = os.path.join(START_PATH, file_name)
+        urllib.request.urlretrieve(url, destination)
+
         self.reshade_temp_path = self._find_reshade(START_PATH, PATTERN)
       except Exception as e:
         print(f"ERROR: {e}")

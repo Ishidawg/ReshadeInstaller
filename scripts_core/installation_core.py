@@ -5,6 +5,13 @@ import os
 import struct
 import shutil
 
+# solve download on Fedora based (bazzite)
+import urllib.request
+import ssl
+
+# I know that this is a force security, probably a security issue to force download withous SSL...
+ssl._create_default_https_context = ssl._create_unverified_context
+
 MACHINE_TYPES = {
   0x014C: "32-bit",
   0x8664: "64-bit",
@@ -105,10 +112,15 @@ class InstallationWorker(QObject):
     subfolder = "win64" if arch == "64-bit" else "win32"
     final_url = f"{URL_COMPILER}/{subfolder}/d3dcompiler_47.dll"
 
-    download_dll = os.system(f'wget -q "{final_url}" -O "{target_file}"')
+    try:
+      urllib.request(final_url, target_file)
+    except Exception as e:
+      pass
 
-    if download_dll != 0:
-      print(f"Warning: Failed to download d3dcompiler_47.dll from {final_url}")
+    #download_dll = os.system(f'wget -q "{final_url}" -O "{target_file}"')
+
+    #if download_dll != 0:
+    #  print(f"Warning: Failed to download d3dcompiler_47.dll from {final_url}")
 
   def _d3d8_wrapper(self, game_dir):
     target_file = game_dir / "d3d8.dll"
@@ -116,10 +128,15 @@ class InstallationWorker(QObject):
     if target_file.exists():
       return
 
-    download_dll = os.system(f'wget -q "{URL_D3D8TO9}" -O "{target_file}"')
+    try:
+      urllib.request(final_url, target_file)
+    except Exception as e:
+      pass
 
-    if download_dll != 0:
-      print(f"Warning: failed to download d3d8.dll wrapper from {URL_D3D8TO9}")
+    #download_dll = os.system(f'wget -q "{URL_D3D8TO9}" -O "{target_file}"')
+
+   	#if download_dll != 0:
+    #  print(f"Warning: failed to download d3d8.dll wrapper from {URL_D3D8TO9}")
 
   # Jhen code snippet (https://github.com/Dzavoy)
   # Indentify binary achitecture, so user do not have to do it manually.
