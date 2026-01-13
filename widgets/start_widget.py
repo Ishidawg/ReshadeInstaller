@@ -37,7 +37,7 @@ class StartWidget(QWidget):
     l_description.setStyleSheet("font-size: 12pt; font-weight: 100;")
     l_description.setMargin(15) # Don't know if there is a better way than set a 'spacing' like this, cuz this was introduced in Qt 4.0
 
-    # Progress abr
+    # Progress bar
     self.p_bar = QProgressBar()
     self.p_bar.setFixedWidth(400)
     self.p_bar.setTextVisible(True)
@@ -47,6 +47,7 @@ class StartWidget(QWidget):
 
     # Add widgets
     ly.addWidget(l_description)
+    ly.setSpacing(5)
     ly.addWidget(self.p_bar)
     self.setLayout(ly)
 
@@ -66,7 +67,7 @@ class StartWidget(QWidget):
 
     self.worker.finished.connect(self.on_success)
     self.worker.error.connect(self.on_error)
-    
+
     self.worker.finished.connect(self.thread.quit)
     self.worker.finished.connect(self.worker.deleteLater)
     self.thread.finished.connect(self.thread.deleteLater)

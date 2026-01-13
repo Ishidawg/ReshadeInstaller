@@ -44,10 +44,8 @@ class InstallationWidget(QWidget):
     ly_browse = QHBoxLayout()
 
     c_api = QWidget()
-    # ly_api = QHBoxLayout(c_api)
     ly_api = QGridLayout(c_api)
     ly_api.setAlignment(Qt.AlignCenter | Qt.AlignmentFlag.AlignCenter)
-    # ly_api.setRowMinimumHeight(0, 100)
     ly_api.setSpacing(15)
 
     # Widgets
@@ -91,11 +89,6 @@ class InstallationWidget(QWidget):
 
     ly.addWidget(l_api)
     ly.addWidget(c_api)
-
-    # radio_api = [self.r_opengl, self.r_d3d8, self.r_d3d9, self.r_d3d10, self.r_d3d11, self.r_vulkan]
-
-    # for api in (radio_api):
-    #  ly_api.addWidget(api)
 
     # Api grid
     ly_api.addWidget(self.r_opengl, 0, 0)
@@ -191,4 +184,3 @@ class InstallationWidget(QWidget):
     self.p_bar.setFormat("Error")
     self.p_bar.setToolTip(f"Detail: {err_msg}")
     self.installation_finished.emit(False)
-

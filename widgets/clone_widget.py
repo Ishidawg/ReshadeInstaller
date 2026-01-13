@@ -114,7 +114,7 @@ class CloneShaderWidget(QWidget):
 
     self.worker.finished.connect(self.on_success)
     self.worker.error.connect(self.on_error)
-    
+
     self.worker.finished.connect(self.thread.quit)
     self.worker.finished.connect(self.worker.deleteLater)
     self.thread.finished.connect(self.thread.deleteLater)
@@ -123,7 +123,7 @@ class CloneShaderWidget(QWidget):
 
   def update_bar_text(self, text):
     self.p_bar.setFormat(f"{text} (%p%)")
-  
+
   def on_success(self):
     self.p_bar.setRange(0, 100)
     self.p_bar.setValue(100)

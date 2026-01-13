@@ -79,10 +79,7 @@ class InstallationWorker(QObject):
         case _:
           raise ValueError(f"YET an nsupported API!")
 
-      # game_dir = game_path.parent
       dest_path = game_dir / dll_dest_name
-
-      # if self.api_choice == "D3D 9": self._d3d8_wrapper(self, game_dir)
 
       self.status_update.emit(f"Installing {dll_dest_name}")
       shutil.copyfile(source_dll_path, dest_path)
@@ -113,14 +110,9 @@ class InstallationWorker(QObject):
     final_url = f"{URL_COMPILER}/{subfolder}/d3dcompiler_47.dll"
 
     try:
-      urllib.request(final_url, target_file)
+      urllib.request.urlretrieve(final_url, target_file)
     except Exception as e:
       pass
-
-    #download_dll = os.system(f'wget -q "{final_url}" -O "{target_file}"')
-
-    #if download_dll != 0:
-    #  print(f"Warning: Failed to download d3dcompiler_47.dll from {final_url}")
 
   def _d3d8_wrapper(self, game_dir):
     target_file = game_dir / "d3d8.dll"
@@ -129,14 +121,9 @@ class InstallationWorker(QObject):
       return
 
     try:
-      urllib.request(final_url, target_file)
+      urllib.request.urlretrieve(URL_D3D8TO9, target_file)
     except Exception as e:
       pass
-
-    #download_dll = os.system(f'wget -q "{URL_D3D8TO9}" -O "{target_file}"')
-
-   	#if download_dll != 0:
-    #  print(f"Warning: failed to download d3d8.dll wrapper from {URL_D3D8TO9}")
 
   # Jhen code snippet (https://github.com/Dzavoy)
   # Indentify binary achitecture, so user do not have to do it manually.
@@ -160,4 +147,3 @@ class InstallationWorker(QObject):
       machine: int = struct.unpack("<H", machine_bytes)[0]
 
     return MACHINE_TYPES.get(machine, "unknown")
-

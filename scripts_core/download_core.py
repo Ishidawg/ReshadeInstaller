@@ -36,7 +36,7 @@ class DownloadWorker(QObject):
     try:
       self.status_update.emit("Checking/Downloading Reshade...")
       self.builder.run_draft()
-      
+
       draft = self.builder.draft
       if draft.reshade_path:
         self.status_update.emit("Download/Search Complete!")
@@ -68,36 +68,32 @@ class ReshadeDraftBuilder(QObject):
         self.find_reshade()
     except Exception as error:
       pass
-      # print(f"ERROR: {error}")
+
 
   # Public methods
   def download_reshade(self, url: str):
     try:
       self._download_reshade(url)
-      # print("DOWNLOAD SUCCESS!")
+
     except Exception as error:
       pass
-      # print("DOWNLOAD FAILED!")
 
     return self
 
   def unzip_reshade(self, reshade_path):
     try:
       self._unzip_reshade(reshade_path)
-      # print("UNZIP SUCCESS!")
+
     except Exception as error:
       pass
-      # print("UNZIP FAILED!")
 
     return self
 
   def find_reshade(self):
     try:
       self.draft.reshade_path = self._find_reshade(START_PATH, PATTERN)
-      # print("SEARCH SUCCESS!")
     except Exception as error:
       pass
-      # print("SEARCH FAILED!")
 
     return self
 
@@ -106,10 +102,9 @@ class ReshadeDraftBuilder(QObject):
     start = Path(start_path)
     pattern = f'{exe_pattern}'
 
-    try: 
+    try:
       matches = list(start.rglob(pattern))
     except PermissionError:
-      # print("ERROR: Not allowed due to permission stuff")
       return None
 
     if not matches:
@@ -120,7 +115,6 @@ class ReshadeDraftBuilder(QObject):
   def _download_reshade(self, url: str):
     if not self._find_reshade(START_PATH, PATTERN):
       try:
-        # os.system(f"wget -q {url} -P {START_PATH}")
         file_name = url.split('/')[-1]
 
         destination = os.path.join(START_PATH, file_name)
@@ -130,8 +124,6 @@ class ReshadeDraftBuilder(QObject):
       except Exception as e:
         print(f"ERROR: {e}")
         return None
-      finally:
-        return True
 
   def _unzip_reshade(self, reshade_path):
     if not os.path.isdir(LOCAL_RESHADE_DIR):

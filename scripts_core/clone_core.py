@@ -59,7 +59,6 @@ class CloneWorker(QObject):
       self.progress_update.emit(0)
 
       for repo_key in self.selected_repos:
-        # url = REPO_URLS.get(repo_key)
         repo_data = REPO_INFO.get(repo_key)
         if not repo_data: continue
 
