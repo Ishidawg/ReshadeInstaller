@@ -1,4 +1,4 @@
-from PySide6.QtCore import QObject, Signal, QThread, QStandardPaths
+from PySide6.QtCore import QObject, Signal, QStandardPaths
 from zipfile import ZipFile
 from pathlib import Path
 import os
@@ -42,7 +42,7 @@ class DownloadWorker(QObject):
         self.status_update.emit("Download/Search Complete!")
         self.finished.emit(draft)
       elif START_PATH:
-        self.error.emit("The download folder should be writeable and readable.")
+        self.error.emit("The Downloads folder should be writeable and readable.")
       else:
         self.error.emit("Could not find ReShade executable.")
     except Exception as e:
