@@ -1,4 +1,4 @@
-from PySide6.QtCore import QObject, Signal, QThread
+from PySide6.QtCore import QObject, Signal, QStandardPaths
 from zipfile import ZipFile
 from pathlib import Path
 import os
@@ -11,7 +11,7 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 RESHADE_URL = "https://reshade.me/downloads/ReShade_Setup_6.6.2.exe"
-START_PATH = os.path.expanduser("~/Downloads")
+START_PATH = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DownloadLocation)
 PATTERN = "ReShade_Setup*.exe"
 LOCAL_RESHADE_DIR = './reshade'
 
@@ -41,6 +41,8 @@ class DownloadWorker(QObject):
       if draft.reshade_path:
         self.status_update.emit("Download/Search Complete!")
         self.finished.emit(draft)
+      elif START_PATH:
+        self.error.emit("The Downloads folder should be writeable and readable.")
       else:
         self.error.emit("Could not find ReShade executable.")
     except Exception as e:
