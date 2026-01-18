@@ -148,8 +148,6 @@ class MainWindow(QMainWindow):
       game_dir = os.path.dirname(game_exe_path)
       game_api = installation_widget.selected_api
 
-      print(game_api)
-
       self.current_api = game_api
       print(self.current_api)
 
