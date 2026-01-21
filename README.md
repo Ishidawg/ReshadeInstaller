@@ -1,5 +1,3 @@
-
-
 # Reshade Installer
 > *Intented to be used with proton applications, but it may also work with Wine*
 
@@ -13,7 +11,8 @@ _Why not?..._ I actually started the development in Java _(21)_ but due to limit
 _Why n-..._ I never built any GUI with **Qt** or **GTK**, so as I use *GNOME* on my daily drive machine, I thought of using it, but I could not get it to work in due time, so I choose Qt that I have seen awesome applications using it too, like: _PCSX2, Duckstation and ShadPS4..._
 
 ## Important
-Reshade on linux works because it overrides wine dll `d3dcompiler_47.dll` _(that I clone from Lutris repo)_, so it is **recommended to have winetricks** installed, I thought of place the dll alongside the game executable to workaround this... Also, it is recommended to add command to steam games launch options, why I'm say that _'is recommended'_? Because **I do not add them**, just have winetricks installed and works perfectly. Let's say that you are installing reshade on a game that uses *DXVK* like **Dark Souls: Remastered**, then the dll will be `dxgi.dll`, so you put: `WINEDLLOVERRIDES="d3dcompiler_47=n;dxgi=n,b;"`.
+Reshade on linux works because it overrides wine dll `d3dcompiler_47.dll` _(that I clone from Lutris repo)_, so it is **recommended to have winetricks** installed, I thought of place the dll alongside the game executable to workaround this... and it works. If you are installing reshade on a Direct3D 8.x game, you **must** add `WINEDLLOVERRIDES="d3d8=n,b;" %command%` to steam launch options or any of the game launcher available like Lutris, Heroic Games and stuff, I personally have tested on Grand Theft Auto 3 Legacy Version. 
+
 
 <div align="center">
     <img alt="Windows Folder" src="https://i.imgur.com/B0V7ocQ.png" width="800" />
@@ -23,7 +22,7 @@ Reshade on linux works because it overrides wine dll `d3dcompiler_47.dll` _(that
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/ishidawg/reshade-installer-linux/total)
 
 
-I think that th program is very intuitive, so if you already installed reshade before you will likely not have any problems. Even though, here is a video guide: https://youtu.be/tM0oJEPixzk
+I think that the program is very intuitive, so if you already installed reshade before you will likely not have any problems. Even though, here is a video guide: https://youtu.be/tM0oJEPixzk
 
 **Download on [releases page](https://github.com/Ishidawg/reshade-installer-linux/releases).** 
 
@@ -52,7 +51,7 @@ The project of course is not currently done, look at monstrosity of GUI... Also 
 
  ## Sources
  I have uploaded the `d3dcompiler.dll` here so it never fails to download!
- - d3dcompiler.dll 64bit: https://lutris.net/files/tools/dll/d3dcompiler_47.dll
+ - _d3dcompiler.dll 64bit: https://lutris.net/files/tools/dll/d3dcompiler_47.dll
  - d3dcompiler.dll 32bit: https://download-installer.cdn.mozilla.net/pub/firefox/releases/62.0.3/win32/ach/Firefox%20Setup%2062.0.3.exe
-
+ - d3d8to9 from crossire: https://github.com/crosire/d3d8to9?tab=readme-ov-file_
  To package as AppImage I've used [appimagetool](https://github.com/AppImage/appimagetool?tab=readme-ov-file).
