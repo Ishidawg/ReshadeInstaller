@@ -79,5 +79,5 @@ class WrapperWidget(QWidget):
 
   @Slot()
   def copy_other(self):
-    self.clipboard.setText("WINEDLLOVERRIDES='d3d8=n,b'")
+    self.clipboard.setText("WINEDLLOVERRIDES=d3d8=n,b")
 

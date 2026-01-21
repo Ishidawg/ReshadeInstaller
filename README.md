@@ -13,10 +13,16 @@ _Why n-..._ I never built any GUI with **Qt** or **GTK**, so as I use *GNOME* on
 ## Important
 Reshade on linux works because it overrides wine dll `d3dcompiler_47.dll` _(that I clone from Lutris repo)_, so it is **recommended to have winetricks** installed, I thought of place the dll alongside the game executable to workaround this... and it works. If you are installing reshade on a Direct3D 8.x game, you **must** add `WINEDLLOVERRIDES="d3d8=n,b;" %command%` to steam launch options or any of the game launcher available like Lutris, Heroic Games and stuff, I personally have tested on Grand Theft Auto 3 Legacy Version. 
 
-
+**Steam Launch options for Direct3D 8.x**
 <div align="center">
-    <img alt="Windows Folder" src="https://i.imgur.com/B0V7ocQ.png" width="800" />
+    <img alt="Steam launch options" src="https://i.imgur.com/HEq7U4X.png" width="800" />
 </div>
+
+**Heroic Games Launcher environment variabel for Direct3D 8.x**
+<div align="center">
+    <img alt="Heroic games launcher" src="https://i.imgur.com/NTC0UhA.png" width="800" />
+</div>
+
 
 ## Usage
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/ishidawg/reshade-installer-linux/total)
@@ -24,7 +30,7 @@ Reshade on linux works because it overrides wine dll `d3dcompiler_47.dll` _(that
 
 I think that the program is very intuitive, so if you already installed reshade before you will likely not have any problems. Even though, here is a video guide: https://youtu.be/tM0oJEPixzk
 
-**Download on [releases page](https://github.com/Ishidawg/reshade-installer-linux/releases).** 
+**Download the AppImage and Flatpak on [releases page](https://github.com/Ishidawg/reshade-installer-linux/releases).** 
 
 
 ### Descriptive guide:
@@ -45,9 +51,18 @@ The project of course is not currently done, look at monstrosity of GUI... Also 
  - [x] appImage
  - [x] Add OpenGL, DirectX 10/11/12
  - [x] Add suport to DirectX 8 games with d3d8to9
+ - [x] Flatpak
  - [ ] add an Uninstall feature
  - [ ] Improve shaders download so the user can select many more shader repositories
- - [ ] Flatpak
+ 
+## Contributing
+If you want to contribute to Reshade Installer, feel free to for the repository, do the changes you want to do, and create pull requests. Every kind of contributions are very welcome!
+
+### How to contribute:
+ 1. Fork the repository
+ 2. Make your changes
+ 3. Commit them: `git add . && git commit -m "My changes" && git push origin main`
+ 4. Create a pull request. Please add into the PR if you have used IA for any kinda stuff, studying, coding...
 
  ## Sources
  I have uploaded the `d3dcompiler.dll` here so it never fails to download!
