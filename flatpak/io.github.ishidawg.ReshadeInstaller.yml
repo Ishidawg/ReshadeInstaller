@@ -37,7 +37,7 @@ modules:
       - cp flatpak/reshade-installer.sh /app/bin/reshade-installer
       - chmod +x /app/bin/reshade-installer
 
-      - cp assets/logo.png /app/share/icons/hicolor/128x128/apps/io.github.ishidawg.ReshadeInstaller.png
+      - cp assets/logo128.png /app/share/icons/hicolor/128x128/apps/io.github.ishidawg.ReshadeInstaller.png
       
       - cp flatpak/io.github.ishidawg.ReshadeInstaller.desktop /app/share/applications/
 

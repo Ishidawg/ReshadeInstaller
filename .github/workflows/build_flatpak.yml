@@ -26,4 +26,3 @@ jobs:
             restore-cache: true
             cache-key: flatpak-builder-${{ github.sha }}
             upload-artifact: true
-            artifact-name: ReshadeInstaller-Flatpak
