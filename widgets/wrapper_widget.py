@@ -45,7 +45,7 @@ class WrapperWidget(QWidget):
     self.l_steam_command.setStyleSheet(s_font)
     self.l_steam_command.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-    self.l_other_command = QLabel(f"<html><strong>Other: <span style='{s_code}'>WINEDLLOVERRIDES='d3d8=n,b</span></strong></html>")
+    self.l_other_command = QLabel(f"<html><strong>Other: <span style='{s_code}'>WINEDLLOVERRIDES=d3d8=n,b</span></strong></html>")
     self.l_other_command.setStyleSheet(s_font)
     self.l_other_command.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
