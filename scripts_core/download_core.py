@@ -125,7 +125,12 @@ class ReshadeDraftBuilder(QObject):
         file_name = url.split('/')[-1]
 
         destination = os.path.join(START_PATH, file_name)
-        urllib.request.urlretrieve(url, destination)
+
+        context = ssl.create_default_context()
+
+        with urllib.request.urlopen(url, context = context) as res:
+            with open(destination, 'wb') as out_file:
+                out_file.write(res.read())
 
         self.reshade_temp_path = self._find_reshade(START_PATH, PATTERN)
       except Exception as e:
