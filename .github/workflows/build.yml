@@ -25,6 +25,7 @@ jobs:
     - name: Install Dependencies
       run: |
         pip install pyside6
+        pip install certifi
         pip install pyinstaller
 
     - name: Create Executable
