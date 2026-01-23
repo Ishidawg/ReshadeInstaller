@@ -8,6 +8,7 @@ import shutil
 # solve download on Fedora based (bazzite)
 import urllib.request
 import ssl
+import certifi
 
 # I know that this is a force security, probably a security issue to force download withous SSL...
 # ssl._create_default_https_context = ssl._create_unverified_context
@@ -110,7 +111,16 @@ class InstallationWorker(QObject):
     final_url = f"{URL_COMPILER}/{subfolder}/d3dcompiler_47.dll"
 
     try:
-      urllib.request.urlretrieve(final_url, target_file)
+      # urllib.request.urlretrieve(final_url, target_file)
+
+      context = ssl.create_default_context(cafile = certifi.where())
+
+      req = urllib.request.Request(final_url, header = {'User-Agent': 'Chrome/120.0.0.0'})
+
+      with urllib.request.urlopen(req, context = context) as res:
+          with open(target_file, 'wb') as out_file:
+                out_file.write(res.read())
+
     except Exception as e:
       pass
 
@@ -121,7 +131,16 @@ class InstallationWorker(QObject):
       return
 
     try:
-      urllib.request.urlretrieve(URL_D3D8TO9, target_file)
+      # urllib.request.urlretrieve(URL_D3D8TO9, target_file)
+
+      context = ssl.create_default_context(cafile = certifi.where())
+
+      req = urllib.request.Request(URL_D3D8TO9, header = {'User-Agent': 'Chrome/120.0.0.0'})
+
+      with urllib.request.urlopen(req, context = context) as res:
+          with open(target_file, 'wb') as out_file:
+                out_file.write(res.read())
+
     except Exception as e:
       pass
 

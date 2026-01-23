@@ -1,14 +1,13 @@
 from PySide6.QtCore import QObject, Signal, QStandardPaths
 import os
 import shutil
-import urllib.request
 import zipfile
 from pathlib import Path
-import ssl
 import tempfile
 
-# I know that this is a force security, probably a security issue to force download withous SSL... 
-# ssl._create_default_https_context = ssl._create_unverified_context
+import urllib.request
+import ssl
+import certifi
 
 REPO_INFO = {
   "default": {
@@ -81,7 +80,15 @@ class CloneWorker(QObject):
 
         try:
           # Need to replace git with a python native because MINT 22.2 does not download
-          urllib.request.urlretrieve(zip_url, zip_path)
+          context = ssl.create_default_context(cafile = certifi.where())
+
+          req = urllib.request.Request(zip_url, headers = {'User-Agent': 'Chrome/120.0.0.0'})
+
+          with urllib.request.urlopen(req, context = context) as res:
+              with open(zip_path, 'wb') as out_file:
+                  out_file.write(res.read())
+
+          # urllib.request.urlretrieve(zip_url, zip_path)
 
           self.status_update.emit(f"Extracting {repo_name}...")
 
