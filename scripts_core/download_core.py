@@ -8,7 +8,7 @@ import urllib.request
 import ssl
 
 # I know that this is a force security, probably a security issue to force download withous SSL...
-ssl._create_default_https_context = ssl._create_unverified_context
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 RESHADE_URL = "https://reshade.me/downloads/ReShade_Setup_6.6.2.exe"
 START_PATH = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DownloadLocation)

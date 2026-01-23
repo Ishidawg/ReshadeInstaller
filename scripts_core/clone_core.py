@@ -8,7 +8,7 @@ import ssl
 import tempfile
 
 # I know that this is a force security, probably a security issue to force download withous SSL... 
-ssl._create_default_https_context = ssl._create_unverified_context
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 REPO_INFO = {
   "default": {

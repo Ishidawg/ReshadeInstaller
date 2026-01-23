@@ -10,7 +10,7 @@ import urllib.request
 import ssl
 
 # I know that this is a force security, probably a security issue to force download withous SSL...
-ssl._create_default_https_context = ssl._create_unverified_context
+# ssl._create_default_https_context = ssl._create_unverified_context
 
 MACHINE_TYPES = {
   0x014C: "32-bit",
