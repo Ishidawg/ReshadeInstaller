@@ -6,9 +6,7 @@ import os
 # solve download on Fedora based (bazzite)
 import urllib.request
 import ssl
-
-# I know that this is a force security, probably a security issue to force download withous SSL...
-# ssl._create_default_https_context = ssl._create_unverified_context
+import certifi
 
 RESHADE_URL = "https://reshade.me/downloads/ReShade_Setup_6.6.2.exe"
 START_PATH = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DownloadLocation)
@@ -126,7 +124,7 @@ class ReshadeDraftBuilder(QObject):
 
         destination = os.path.join(START_PATH, file_name)
 
-        context = ssl.create_default_context()
+        context = ssl.create_default_context(cafile = certifi.where())
 
         with urllib.request.urlopen(url, context = context) as res:
             with open(destination, 'wb') as out_file:
