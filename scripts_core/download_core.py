@@ -126,7 +126,10 @@ class ReshadeDraftBuilder(QObject):
 
         context = ssl.create_default_context(cafile = certifi.where())
 
-        with urllib.request.urlopen(url, context = context) as res:
+        req = urllib.request.Request(url, headers = {'User-Agent': 'Chrome/120.0.0.0'})
+
+
+        with urllib.request.urlopen(req, context = context) as res:
             with open(destination, 'wb') as out_file:
                 out_file.write(res.read())
 
