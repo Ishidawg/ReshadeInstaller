@@ -81,7 +81,7 @@ class CloneWorker(QObject):
           # Need to replace git with a python native because MINT 22.2 does not download
           context = ssl.create_default_context(cafile = certifi.where())
 
-          req = urllib.request.Request(zip_url, headers = {'User-Agent': 'Mozilla/5.0 (X11; U; Linux i686) Gecko/20071127 Firefox/2.0.0.11 Chrome/120.0.0.0'})
+          req = urllib.request.Request(zip_url, headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:147.0) Gecko/20100101 Firefox/147.0'})
 
           with urllib.request.urlopen(req, context = context) as res:
               with open(zip_path, 'wb') as out_file:
