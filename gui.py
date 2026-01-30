@@ -201,10 +201,6 @@ class MainWindow(QMainWindow):
             self.b_back.setEnabled(True)
 
     def change_widget(self, direction=1):
-        # Deletes previous widget, if I change my mind...
-        # self.ly_main.removeWidget(self.current_widget)
-        # self.current_widget.deleteLater()
-
         self.current_widget.hide()
 
         if direction == 1:
