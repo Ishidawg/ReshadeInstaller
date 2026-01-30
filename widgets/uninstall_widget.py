@@ -1,4 +1,3 @@
-import os
 import shutil
 
 from PySide6.QtWidgets import (

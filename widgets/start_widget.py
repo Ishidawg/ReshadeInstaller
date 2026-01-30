@@ -30,10 +30,12 @@ class StartWidget(QWidget):
         l_description = QLabel(
             "LeShade is a manager for reshade installations on linux. It's a native tool that can install and uninstall reshade across many games that uses proton or WINE.")
         l_description.setWordWrap(True)
-        l_description.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        l_description.setStyleSheet("font-size: 12pt; font-weight: 100;")
+        l_description.setAlignment(
+            Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignCenter)
+        l_description.setStyleSheet(
+            "font-size: 12pt; font-weight: 100; height: 100%;")
         # Don't know if there is a better way than set a 'spacing' like this, cuz this was introduced in Qt 4.0
-        l_description.setMargin(15)
+        # l_description.setMargin(15)
 
         # Progress bar
         self.p_bar = QProgressBar()
@@ -45,7 +47,7 @@ class StartWidget(QWidget):
 
         # Add widgets
         ly.addWidget(l_description)
-        ly.setSpacing(5)
+        ly.addSpacing(5)
         ly.addWidget(self.p_bar)
         self.setLayout(ly)
 

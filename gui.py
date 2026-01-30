@@ -10,11 +10,10 @@ from PySide6.QtWidgets import (
     QPushButton
 )
 
-from PySide6.QtCore import Qt, QThread, Signal, QStandardPaths
-from PySide6.QtGui import QFont, QIcon
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
 
 # Import widgets
-from widgets import uninstall_widget
 from widgets.start_widget import StartWidget
 from widgets.installation_widget import InstallationWidget
 from widgets.clone_widget import CloneShaderWidget
@@ -25,7 +24,6 @@ from widgets.uninstall_widget import UninstallWidget
 from scripts_core.download_core import LOCAL_RESHADE_DIR
 
 # Manager related stuff
-# from scripts_core.manager_core import create_manager
 import scripts_core.manager_core
 
 # l:    label
@@ -68,7 +66,7 @@ class MainWindow(QMainWindow):
         WINDOW_WIDTH = 620
         WINDOW_HEIGHT = 498
 
-        self.setWindowTitle("Reshade Installer")
+        self.setWindowTitle("LeShade")
         self.setMinimumSize(WINDOW_WIDTH, WINDOW_HEIGHT)
         self.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
 
@@ -86,7 +84,8 @@ class MainWindow(QMainWindow):
 
         l_title = QLabel("LeShade")
         l_title.setStyleSheet("font-size: 28pt; font-weight: 600; padding: 0")
-        l_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        l_title.setAlignment(Qt.AlignmentFlag.AlignTop |
+                             Qt.AlignmentFlag.AlignCenter)
 
         l_subtitle = QLabel("reshade manager")
         l_subtitle.setStyleSheet(
@@ -97,7 +96,8 @@ class MainWindow(QMainWindow):
         b_bottom_buttons = QWidget()
         b_bottom_buttons.setContentsMargins(0, 0, 0, 10)
         ly_bottom_buttons = QHBoxLayout(b_bottom_buttons)
-        ly_bottom_buttons.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        ly_bottom_buttons.setAlignment(
+            Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter)
 
         self.b_next = QPushButton("Next", self)
         self.b_back = QPushButton("Back", self)

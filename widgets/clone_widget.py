@@ -1,10 +1,5 @@
-import sys
-
 from PySide6.QtWidgets import (
-    QApplication,
     QLabel,
-    QMainWindow,
-    QPushButton,
     QVBoxLayout,
     QWidget,
     QCheckBox,
@@ -62,7 +57,6 @@ class CloneShaderWidget(QWidget):
 
         # Progress bar
         self.p_bar = QProgressBar()
-        self.p_bar.setFixedWidth(400)
         self.p_bar.setTextVisible(True)
         self.p_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.p_bar.setRange(0, 100)
