@@ -8,7 +8,7 @@ import urllib.request
 import ssl
 import certifi
 
-RESHADE_URL = "https://reshade.me/downloads/ReShade_Setup_6.6.2.exe"
+RESHADE_URL = "https://reshade.me/downloads/ReShade_Setup_6.7.1.exe"
 START_PATH = QStandardPaths.writableLocation(
     QStandardPaths.StandardLocation.DownloadLocation)
 CACHE_PATH = QStandardPaths.writableLocation(
