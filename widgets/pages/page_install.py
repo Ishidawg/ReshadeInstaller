@@ -1,0 +1,63 @@
+from PySide6.QtWidgets import (
+    QComboBox,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+)
+
+from PySide6.QtCore import Qt, Signal, Slot
+
+
+class PageInstall(QWidget):
+    download = Signal(bool)
+    version = Signal(str)
+    release = Signal(str)
+
+    def __init__(self):
+        super().__init__()
+
+        self.reshade_versions = ["addon", "non-addon"]
+        self.reshade_releases = ["6.7.1", "6.7.0"]
+
+        # create layout
+        layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        layout_selection = QHBoxLayout()
+
+        # create widgets
+        label_description = QLabel(
+            "You can select if reshade has addon support or not, and choose the version.")
+        label_description.setStyleSheet("font-size: 12pt; font-weight: 100")
+        label_description.setWordWrap(True)
+
+        self.reshade_version = QComboBox()
+        self.reshade_release = QComboBox()
+
+        for item in self.reshade_versions:
+            self.reshade_version.addItem(item)
+
+        for item in self.reshade_releases:
+            self.reshade_release.addItem(item)
+
+        self.btn_download = QPushButton("Download")
+        self.btn_download.clicked.connect(self.click_download)
+
+        # add widgets
+        layout.addWidget(label_description)
+
+        layout_selection.addWidget(self.reshade_version)
+        layout_selection.addWidget(self.reshade_release)
+        layout.addLayout(layout_selection)
+
+        layout.addWidget(self.btn_download)
+
+        self.setLayout(layout)
+
+    @Slot(bool)
+    def click_download(self):
+        self.download.emit(True)
+        self.version.emit(self.reshade_version.currentText())
+        self.release.emit(self.reshade_release.currentText())
