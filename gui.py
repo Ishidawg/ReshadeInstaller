@@ -35,8 +35,11 @@ import scripts_core.manager_core
 
 
 def get_localdir():
-    if getattr(sys, 'frozen', False):  # means that it is running with pyinstaller
-        return sys._MEIPASS
+    base_path = getattr(
+        sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+
+    if getattr(sys, 'frozen', False):
+        return base_path
     else:
         return os.path.dirname(os.path.abspath(__file__))
 
@@ -64,8 +67,8 @@ class MainWindow(QMainWindow):
 
         self.current_api = None
 
-        WINDOW_WIDTH = 620
-        WINDOW_HEIGHT = 498
+        WINDOW_WIDTH = 820
+        WINDOW_HEIGHT = 500
 
         self.setWindowTitle("LeShade")
         self.setMinimumSize(WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -73,7 +76,7 @@ class MainWindow(QMainWindow):
 
         # Main container
         c_main = QWidget()
-        c_main.setContentsMargins(40, 0, 40, 0)
+        # c_main.setContentsMargins(40, 0, 40, 0)
         self.setCentralWidget(c_main)
         self.ly_main = QVBoxLayout(c_main)
 
