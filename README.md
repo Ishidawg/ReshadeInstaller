@@ -58,7 +58,9 @@ The project of course is not currently done, look at monstrosity of GUI... Also 
  - [x] Add OpenGL, DirectX 10/11/12
  - [x] Add suport to DirectX 8 games with d3d8to9
  - [x] Flatpak
- - [ ] add an Uninstall feature
+ - [x] add an Uninstall feature
+ - [ ] add the possibility to select reshade with addon-support
+ - [ ] user can select the reshade version
  - [ ] Improve shaders download so the user can select many more shader repositories
  
 ### Flathub?
