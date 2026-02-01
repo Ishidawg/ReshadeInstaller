@@ -1,9 +1,9 @@
 import os
+from pathlib import Path
 from PySide6.QtCore import (
     QObject,
-    Signal,
     QStandardPaths,
-    Slot
+    Signal
 )
 
 import urllib.request
@@ -20,11 +20,10 @@ DOWNLOAD_PATH = QStandardPaths.writableLocation(
 CACHE_PATH = QStandardPaths.writableLocation(
     QStandardPaths.StandardLocation.CacheLocation)
 
-LOCAL_RESHADE_DIR = os.path.join(CACHE_PATH, "reshade_extracted")
-
 
 class DownloadWorker(QObject):
-    download_finish = Signal(bool)
+    reshade_found = Signal(bool)
+    reshade_error = Signal(str)
 
     def __init__(self, version, release):
         super().__init__()
@@ -32,9 +31,24 @@ class DownloadWorker(QObject):
         self.reshade_url = ""
         self.version = version
         self.release = release
+        self.reshade_dir = ""
 
         self.build_url()
-        self.download_reshade()
+        self.run()
+
+    def run(self):
+        self.reshade_dir = self.find_reshade()
+
+        if self.reshade_dir != "":
+            self.reshade_found.emit(True)
+        else:
+            self.download_reshade()
+            self.reshade_dir = self.find_reshade()
+
+            if self.reshade_dir != "":
+                self.reshade_found.emit(True)
+            else:
+                self.reshade_error.emit("Reshade was not found!")
 
     def build_url(self):
         try:
@@ -44,6 +58,17 @@ class DownloadWorker(QObject):
                 self.reshade_url = f"https://reshade.me/downloads/ReShade_Setup_{self.release}.exe"
         except Exception as e:
             print(e)
+
+    def find_reshade(self):
+        matches = ""
+
+        try:
+            matches = list(Path(DOWNLOAD_PATH).rglob(PATTERN))
+        except Exception as e:
+            print(e)
+
+        if matches:
+            return str(matches[0])
 
     def download_reshade(self):
         if self.reshade_url != "":

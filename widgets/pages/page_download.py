@@ -8,13 +8,11 @@ from PySide6.QtWidgets import (
     QProgressBar
 )
 
-from PySide6.QtCore import Qt, Signal, Slot
+from PySide6.QtCore import Qt, Slot
 from scripts_core.script_download import DownloadWorker
 
 
 class PageDownload(QWidget):
-    download = Signal(bool)
-
     def __init__(self):
         super().__init__()
 
@@ -65,6 +63,5 @@ class PageDownload(QWidget):
 
     @Slot(bool)
     def click_download(self):
-        self.download.emit(True)
         DownloadWorker(self.reshade_version.currentText(),
                        self.reshade_release.currentText())
