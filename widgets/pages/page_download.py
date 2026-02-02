@@ -9,16 +9,16 @@ from PySide6.QtWidgets import (
 )
 
 from PySide6.QtCore import Qt, Slot
-from scripts_core.script_download import DownloadWorker
+from scripts_core.script_download_re import DownloadWorker
 
 
 class PageDownload(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.reshade_versions = ["addon", "non-addon"]
-        self.reshade_releases = ["6.7.1", "6.7.0",
-                                 "6.6.2", "6.6.1", "6.6.0", "6.5.1", "6.5.0"]
+        self.reshade_versions: list[str] = ["addon", "non-addon"]
+        self.reshade_releases: list[str] = ["6.7.1", "6.7.0",
+                                            "6.6.2", "6.6.1", "6.6.0", "6.5.1", "6.5.0"]
 
         # create layout
         layout = QVBoxLayout()
@@ -63,6 +63,6 @@ class PageDownload(QWidget):
         self.setLayout(layout)
 
     @Slot(bool)
-    def click_download(self):
+    def click_download(self) -> None:
         DownloadWorker(self.reshade_version.currentText(),
                        self.reshade_release.currentText())

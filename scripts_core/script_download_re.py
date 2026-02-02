@@ -35,16 +35,18 @@ class DownloadWorker(QObject):
         self.version: str | None = version
         self.release: str | None = release
 
-        self.reshade_dir: str | None = None
-        self.perhaps_dir: str | None = None
+        self.reshade_dir: str = ''
+        self.perhaps_dir: str = ''
 
         self.build_url()
         self.run()
 
     def run(self) -> None:
-        self.search_reshade()
+        self.search_reshade_on_download_dir()
         self.perhaps_dir = self.prevent_download()
-        self.reshade_dir = self.find_reshade()
+
+        if self.perhaps_dir in self.local_reshade:
+            self.reshade_dir = self.find_reshade()
 
         if not self.reshade_dir:
             self.download_reshade()
@@ -57,6 +59,9 @@ class DownloadWorker(QObject):
                 self.reshade_found.emit(True)
         else:
             self.reshade_error.emit("Reshade was not found")
+
+        print(f"dir: {self.reshade_dir.split("/")[-1]}")
+        print(f"url: {self.reshade_url.split("/")[-1]}")
 
     def build_url(self) -> None:
         try:
@@ -73,18 +78,20 @@ class DownloadWorker(QObject):
 
         return perhaps_dir
 
-    def search_reshade(self) -> None:
+    def search_reshade_on_download_dir(self) -> None:
         self.local_reshade = glob.glob(os.path.join(
             DOWNLOAD_PATH, PATTERN), recursive=True)
 
-    def find_reshade(self) -> str | None:
+    def find_reshade(self) -> str:
         matches: list[Path] = []
+        file_name: str = self.reshade_url.split("/")[-1]
 
         try:
-            matches = list(Path(DOWNLOAD_PATH).rglob(PATTERN))
-            return str(matches[0])
+            matches = list(Path(DOWNLOAD_PATH).rglob(file_name))
         except Exception as e:
             raise OSError(f"Failed to find ReShade: {e}") from e
+
+        return str(matches[0])
 
     def download_reshade(self) -> None:
         if self.reshade_url != "":
