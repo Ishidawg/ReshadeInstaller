@@ -63,7 +63,7 @@ class DownloadWorker(QObject):
             else:
                 self.reshade_url = f"https://reshade.me/downloads/ReShade_Setup_{self.release}.exe"
         except Exception as e:
-            print(e)
+            raise RuntimeError(f"Failed to build url: {e}") from e
 
     def prevent_download(self):
         file_name = self.reshade_url.split("/")[-1]
@@ -81,9 +81,8 @@ class DownloadWorker(QObject):
 
         try:
             matches = list(Path(DOWNLOAD_PATH).rglob(PATTERN))
-
         except Exception as e:
-            print(e)
+            raise OSError(f"Failed to find ReShade: {e}") from e
 
         if matches:
             return str(matches[0])
@@ -103,4 +102,4 @@ class DownloadWorker(QObject):
                         file.write(res.read())
 
             except Exception as e:
-                print(e)
+                raise IOError(f"Failed to download: {e}") from e
