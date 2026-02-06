@@ -90,7 +90,7 @@ class PageInstallation(QWidget):
         if file_name:
             self.browse_input.setText(file_name[0])
             self.game_path = file_name[0]
-            print(self.game_path)
+            # print(self.game_path)
 
     def on_install_clicked(self):
         self.api_selection()
@@ -110,7 +110,7 @@ class PageInstallation(QWidget):
         for key, value in available_api.items():
             if key.isChecked():
                 self.game_api = value
-                print(self.game_api)
+                # print(self.game_api)
                 break
 
     def installation(self) -> None:

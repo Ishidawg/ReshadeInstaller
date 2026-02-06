@@ -9,6 +9,11 @@ from PySide6.QtCore import (
     Signal
 )
 
+from scripts_core.script_download_dll import (
+    download_d3d8to9,
+    download_hlsl_compiler
+)
+
 from scripts_core.script_prepare_re import EXTRACT_PATH
 
 MACHINE_TYPES = {
@@ -16,9 +21,6 @@ MACHINE_TYPES = {
     0x8664: "64-bit",
     0xAA64: "64-bit",
 }
-
-URL_COMPILER = "https://github.com/Ishidawg/reshade-installer-linux/raw/main/d3dcompiler_dll"
-URL_D3D8TO9 = "https://github.com/crosire/d3d8to9/releases/download/v1.13.0/d3d8.dll"
 
 
 class InstallationWorker(QObject):
@@ -38,14 +40,18 @@ class InstallationWorker(QObject):
         self.run()
 
     def run(self) -> None:
-        self.game_arch = self.get_executable_architecture(Path(self.game_path))
+        self.game_arch = self.get_executable_architecture(
+            Path(self.game_path))
         self.ready_reshade_dll()
+
+        # d3d8 wrapper and hlsl compiler
+        download_hlsl_compiler(self.game_path_parent, self.game_arch)
+        if self.game_api == "D3D 8":
+            download_d3d8to9(self.game_path_parent)
 
     def ready_reshade_dll(self) -> None:
         self.prepare_dll()
         self.create_reshade_directories()
-
-        # NEED TO INSTALL THE COMPILER
 
     def create_reshade_directories(self):
         os.makedirs(os.path.join(self.game_path_parent,
@@ -66,10 +72,7 @@ class InstallationWorker(QObject):
         match self.game_api:
             case "OpenGL":
                 reshade_dll_renamed = "opengl32.dll"
-            case "D3D 8":
-                reshade_dll_renamed = "d3d9.dll"
-                # self._d3d8_wrapper(game_dir)
-            case "D3D 9":
+            case "D3D 8" | "D3D 9":
                 reshade_dll_renamed = "d3d9.dll"
             case "D3D 10":
                 reshade_dll_renamed = "d3d10.dll"
@@ -83,7 +86,8 @@ class InstallationWorker(QObject):
         reshade_dll_renamed_destination: str = os.path.join(
             self.game_path_parent, reshade_dll_renamed)
 
-        shutil.copy(reshade_dll_dir, reshade_dll_renamed_destination)
+        if not Path(reshade_dll_renamed_destination).exists():
+            shutil.copy(reshade_dll_dir, reshade_dll_renamed_destination)
 
     def get_executable_architecture(self, path: Path) -> str:
         if not path.exists():
