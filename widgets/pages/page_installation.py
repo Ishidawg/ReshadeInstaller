@@ -97,7 +97,6 @@ class PageInstallation(QWidget):
         if file_name:
             self.browse_input.setText(file_name[0])
             self.game_path = file_name[0]
-            # print(self.game_path)
 
     def start_installation(self) -> None:
         self.install_thread: QThread = QThread()
@@ -131,10 +130,12 @@ class PageInstallation(QWidget):
 
     def on_sucess(self, value: bool) -> None:
         if value:
+            self.progress_bar.setFormat("Installation finished!")
             self.install_finished.emit(value)
 
     def on_error(self, value: bool) -> None:
         if not value:
+            self.progress_bar.setFormat("Error while installing")
             self.install_finished.emit(value)
 
     def api_selection(self) -> None:
@@ -157,9 +158,11 @@ class PageInstallation(QWidget):
         self.api_selection()
 
         if not self.game_path or not os.path.exists(self.game_path):
+            self.progress_bar.setFormat("Error: no game directory")
             return
 
         if not self.game_api:
+            self.progress_bar.setFormat("Error: no api selected")
             return
 
         self.start_installation()
