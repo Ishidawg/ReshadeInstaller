@@ -1,11 +1,10 @@
 import os
-from pathlib import Path
 import shutil
 import zipfile
 
+from pathlib import Path
 from PySide6.QtCore import (
     QObject,
-    QStandardPaths,
     Signal
 )
 
@@ -14,27 +13,27 @@ import ssl
 import certifi
 
 REPO_SHADERS = {
-    "crosire_slim": {
+    "Crosire slim": {
         "url": "https://github.com/crosire/reshade-shaders",
         "branch": "slim"
     },
-    "crosire_legacy": {
+    "Crosile legacy": {
         "url": "https://github.com/crosire/reshade-shaders",
         "branch": "legacy"
     },
-    "sweet_fx": {
+    "Sweet FX": {
         "url": "https://github.com/CeeJayDK/SweetFX",
         "branch": "master"
     },
-    "prod80": {
+    "Prod80": {
         "url": "https://github.com/prod80/prod80-ReShade-Repository",
         "branch": "master"
     },
-    "quint": {
+    "qUINT": {
         "url": "https://github.com/martymcmodding/qUINT",
         "branch": "master"
     },
-    "immerse": {
+    "iMMERSE": {
         "url": "https://github.com/martymcmodding/iMMERSE",
         "branch": "main"
     },
@@ -42,19 +41,19 @@ REPO_SHADERS = {
         "url": "https://github.com/TheGordinho/MLUT",
         "branch": "master"
     },
-    "insane": {
+    "Insane shaders": {
         "url": "https://github.com/LordOfLunacy/Insane-Shaders",
         "branch": "master"
     },
-    "retro_arch": {
+    "RS Retro Arch": {
         "url": "https://github.com/Matsilagi/RSRetroArch",
         "branch": "main"
     },
-    "crt_royale": {
+    "CRT Royale": {
         "url": "https://github.com/akgunter/crt-royale-reshade",
         "branch": "master"
     },
-    "gramarye": {
+    "Glamarye Fast Effects": {
         "url": "https://github.com/rj200/Glamarye_Fast_Effects_for_ReShade",
         "branch": "main"
     }
@@ -62,6 +61,8 @@ REPO_SHADERS = {
 
 
 class ShadersWorker(QObject):
+    clone_finished: Signal = Signal(bool)
+
     def __init__(self, selections: list[str]):
         super().__init__()
 
@@ -69,38 +70,48 @@ class ShadersWorker(QObject):
         self.selected_repos: list[str] = selections
         self.total_repos: int = 0
 
-        """
-        "shader_repo": {
-            "files": ["file1.fx, file2.fx"],
-        }
-
-        """
-
-        self.downloaded_shaders = {
-
-        }
+        self.shader_temp_directory: str = os.path.join(
+            self.game_path, ".shaders_temp")
+        self.shader_dir: str = os.path.join(self.game_path, "Shaders")
+        self.texture_dir: str = os.path.join(self.game_path, "Textures")
 
     def run(self) -> None:
-        self.download_shaders()
+        self.install_shaders()
+        self.organize_files(self.game_path, self.shader_dir, self.texture_dir)
+        self.clean_temp()
 
-    def get_selected(self) -> None:
-        pass
+    def clean_temp(self) -> None:
+        if Path(self.shader_temp_directory).exists():
+            shutil.rmtree(self.shader_temp_directory)
 
     def unzip_shader(self, shader_temp_dir: str, repo_name: str, zipped_dir: str) -> None:
         extracted_shader_dir: str = os.path.join(shader_temp_dir, repo_name)
         os.makedirs(extracted_shader_dir, exist_ok=True)
 
-        with zipfile.ZipFile(zipped_dir, 'r') as zip_ref:
-            zip_ref.extractall(extracted_shader_dir)
+        try:
+            with zipfile.ZipFile(zipped_dir, 'r') as zip_ref:
+                zip_ref.extractall(extracted_shader_dir)
+        except Exception as e:
+            raise IOError(f"Failed to unzip: {e}") from e
 
-    def download_shaders(self) -> None:
+    def download_shaders(self, shader_url: str, zipped_shader_dir: str) -> None:
+        try:
+            context = ssl.create_default_context(cafile=certifi.where())
+
+            req = urllib.request.Request(
+                shader_url, headers={'User-Agent': 'Chrome/121.0.0.0'})
+
+            with urllib.request.urlopen(req, context=context) as res:
+                with open(zipped_shader_dir, 'wb') as file:
+                    file.write(res.read())
+        except Exception as e:
+            raise IOError(f"Clone reshade failed: {e}") from e
+
+    def install_shaders(self) -> None:
         if not self.game_path:
             raise ValueError("Path error")
 
-        shader_temp_directory: str = os.path.join(
-            self.game_path, ".shaders_temp")
-
-        os.makedirs(shader_temp_directory, exist_ok=True)
+        os.makedirs(self.shader_temp_directory, exist_ok=True)
 
         try:
             self.total_repos = len(self.selected_repos)
@@ -119,39 +130,34 @@ class ShadersWorker(QObject):
                 shader_url: str = f"{repo_url}/archive/refs/heads/{repo_branch}.zip"
 
                 zipped_shader_dir: str = os.path.join(
-                    shader_temp_directory, f"{repo_name}.zip")
+                    self.shader_temp_directory, f"{repo_name}.zip")
 
-                try:
-                    context = ssl.create_default_context(
-                        cafile=certifi.where())
-
-                    req = urllib.request.Request(
-                        shader_url, headers={'User-Agent': 'Chrome/121.0.0.0'})
-
-                    with urllib.request.urlopen(req, context=context) as res:
-                        with open(zipped_shader_dir, 'wb') as out_file:
-                            out_file.write(res.read())
-
-                    self.unzip_shader(shader_temp_directory,
-                                      repo_name, zipped_shader_dir)
-                except Exception as e:
-                    continue
+                self.download_shaders(shader_url, zipped_shader_dir)
+                self.unzip_shader(self.shader_temp_directory,
+                                  repo_name, zipped_shader_dir)
 
                 current_repo += 1
         except Exception as e:
-            pass
+            raise IOError(f"Download shaders failed: {e}") from e
 
-    def _organize_files(self, source_root, shaders_dest, textures_dest):
-        for root, dirs, files in os.walk(source_root):
+    def organize_files(self, game_path: str, shaders_dir: str, textures_dir: str) -> None:
+        for root, dirs, files in os.walk(game_path):
             if ".git" in root:
                 continue
 
-            for file in files:
-                file_lower = file.lower()
-                src_file = os.path.join(root, file)
+            try:
+                for file in files:
+                    file_lower: str = file.lower()
+                    src_file: str = os.path.join(root, file)
 
-                if file_lower.endswith(('.fx', '.fxh')):
-                    shutil.copy2(src_file, os.path.join(shaders_dest, file))
+                    if file_lower.endswith(('.fx', '.fxh')):
+                        shutil.copy2(src_file, os.path.join(shaders_dir, file))
 
-                elif file_lower.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tga')):
-                    shutil.copy2(src_file, os.path.join(textures_dest, file))
+                    if file_lower.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tga')):
+                        shutil.copy2(src_file, os.path.join(
+                            textures_dir, file))
+
+                self.clone_finished.emit(True)
+            except Exception as e:
+                self.clone_finished.emit(False)
+                raise IOError(f"Failed to organize files: {e}") from e

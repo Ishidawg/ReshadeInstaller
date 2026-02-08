@@ -1,9 +1,8 @@
 import os
 from PySide6.QtWidgets import (
     QCheckBox,
-    QHBoxLayout,
     QLabel,
-    QListWidget,
+    QProgressBar,
     QPushButton,
     QScrollArea,
     QVBoxLayout,
@@ -19,6 +18,8 @@ class PageClone(QWidget):
 
     def __init__(self):
         super().__init__()
+
+        self.selections: list[str] = []
 
         # create layout
         layout = QVBoxLayout()
@@ -57,30 +58,64 @@ class PageClone(QWidget):
 
         self.scroll_area.setWidget(widget_checkboxes)
 
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setTextVisible(True)
+        self.progress_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setValue(0)
+
         self.btn_install = QPushButton("Install")
         self.btn_install.clicked.connect(self.on_install)
 
         # add widgets
         layout.addWidget(label_description)
         layout.addWidget(self.scroll_area)
+        layout.addWidget(self.progress_bar)
         layout.addWidget(self.btn_install)
         self.setLayout(layout)
 
-    def on_install(self):
-        self.test()
+    def on_install(self) -> None:
+        self.append_selections(self.selections)
+        self.start_clone()
 
-    def test(self):
-        selections = []
-        if self.cxb_crosire_slim.isChecked():
-            selections.append("crosire_slim")
+    def append_selections(self, selections: list[str]):
+        for checkbox in self.cxb_list:
+            if checkbox.isChecked():
+                selections.append(checkbox.text())
 
-        if not selections:
+    def start_clone(self) -> None:
+        if not self.selections:
             return
 
-        self.clone_thread = QThread()
-        self.clone_worker = ShadersWorker(selections)
+        self.clone_thread: QThread = QThread()
+        self.clone_worker: ShadersWorker = ShadersWorker(self.selections)
 
         self.clone_thread.moveToThread(self.clone_thread)
 
+        # start and at the end, finished, are built-in threads signals
+        self.clone_thread.started.connect(self.start_animation)
         self.clone_thread.started.connect(self.clone_worker.run)
+
+        # clone_finished
+        self.clone_worker.clone_finished.connect(self.on_success)
+        self.clone_worker.clone_finished.connect(self.on_error)
+
+        self.clone_worker.clone_finished.connect(self.clone_thread.quit)
+        self.clone_worker.clone_finished.connect(self.clone_worker.deleteLater)
+        self.clone_thread.finished.connect(self.clone_thread.deleteLater)
+
         self.clone_thread.start()
+
+    def start_animation(self) -> None:
+        self.progress_bar.setRange(0, 0)
+
+    def on_success(self, value: bool) -> None:
+        if value:
+            self.progress_bar.setRange(0, 100)
+            self.progress_bar.setValue(100)
+            self.progress_bar.setFormat("Installation finished!")
+
+    def on_error(self, value: bool) -> None:
+        if not value:
+            self.progress_bar.setValue(0)
+            self.progress_bar.setFormat("Failed shader proccess")
