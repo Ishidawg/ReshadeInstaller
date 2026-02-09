@@ -142,26 +142,30 @@ class ShadersWorker(QObject):
             raise IOError(f"Download shaders failed: {e}") from e
 
     def organize_files(self, game_path: str, shaders_dir: str, textures_dir: str) -> None:
-        for root, dirs, files in os.walk(game_path):
-            if ".git" in root:
-                continue
+        try:
+            for root, dirs, files in os.walk(game_path):
+                if ".git" in root:
+                    continue
 
-            try:
-                for file in files:
-                    file_lower: str = file.lower()
-                    src_file: str = os.path.join(root, file)
+                try:
+                    for file in files:
+                        file_lower: str = file.lower()
+                        src_file: str = os.path.join(root, file)
 
-                    if file_lower.endswith(('.fx', '.fxh')):
-                        if not Path(os.path.join(shaders_dir, file)).exists():
-                            shutil.copy2(
-                                src_file, os.path.join(shaders_dir, file))
+                        if file_lower.endswith(('.fx', '.fxh')):
+                            if not Path(os.path.join(shaders_dir, file)).exists():
+                                shutil.copy2(
+                                    src_file, os.path.join(shaders_dir, file))
 
-                    if file_lower.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tga')):
-                        if not Path(os.path.join(textures_dir, file)).exists():
-                            shutil.copy2(src_file, os.path.join(
-                                textures_dir, file))
+                        if file_lower.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tga')):
+                            if not Path(os.path.join(textures_dir, file)).exists():
+                                shutil.copy2(src_file, os.path.join(
+                                    textures_dir, file))
 
-                self.clone_finished.emit(True)
-            except Exception as e:
-                self.clone_finished.emit(False)
-                raise IOError(f"Failed to organize files: {e}") from e
+                except Exception as e:
+                    raise IOError(f"Failed to organize files: {e}") from e
+            self.clone_finished.emit(True)
+        except Exception as e:
+            # I've already over the except on the inner try
+            print(e)
+            self.clone_finished.emit(False)

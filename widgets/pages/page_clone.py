@@ -75,6 +75,7 @@ class PageClone(QWidget):
         self.setLayout(layout)
 
     def on_install(self) -> None:
+        self.start_animation()
         self.append_selections(self.selections)
         self.start_clone()
 
@@ -93,7 +94,6 @@ class PageClone(QWidget):
         self.clone_thread.moveToThread(self.clone_thread)
 
         # start and at the end, finished, are built-in threads signals
-        self.clone_thread.started.connect(self.start_animation)
         self.clone_thread.started.connect(self.clone_worker.run)
 
         # clone_finished
