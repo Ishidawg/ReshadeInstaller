@@ -96,9 +96,10 @@ class ShadersWorker(QObject):
 
     def download_shaders(self, shader_url: str, zipped_shader_dir: str) -> None:
         try:
-            context = ssl.create_default_context(cafile=certifi.where())
+            context: ssl.SSLContext = ssl.create_default_context(
+                cafile=certifi.where())
 
-            req = urllib.request.Request(
+            req: urllib.request.Request = urllib.request.Request(
                 shader_url, headers={'User-Agent': 'Chrome/121.0.0.0'})
 
             with urllib.request.urlopen(req, context=context) as res:

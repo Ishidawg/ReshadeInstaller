@@ -37,6 +37,9 @@ class InstallationWorker(QObject):
         self.shader_dir: str = os.path.join(self.game_path_parent, 'Shaders')
         self.texture_dir: str = os.path.join(self.game_path_parent, 'Textures')
 
+        self.reshade_ini: str = os.path.join(
+            self.game_path_parent, "ReShade.ini")
+
     def run(self) -> None:
         self.install_progress.emit(0)
         self.game_arch = self.get_executable_architecture(
@@ -64,12 +67,50 @@ class InstallationWorker(QObject):
     def ready_reshade_dll(self) -> None:
         self.prepare_dll()
         self.create_reshade_directories()
+        self.create_reshade_ini()
+        self.write_reshade_ini()
 
     def create_reshade_directories(self) -> None:
         os.makedirs(os.path.join(self.game_path_parent,
                     self.shader_dir), exist_ok=True)
         os.makedirs(os.path.join(self.game_path_parent,
                     self.texture_dir), exist_ok=True)
+
+    def create_reshade_ini(self) -> None:
+        try:
+            # I tried do a open with "x" only and did not work, always goes to exception
+            if not Path(self.reshade_ini).exists():
+                open(self.reshade_ini, "x")
+        except FileExistsError as e:
+            raise FileExistsError(f"Failed to create ReShade.ini: {e}") from e
+
+    def write_reshade_ini(self) -> None:
+        reshade_ini_content: str | None = None
+
+        ini_data: str = """
+            [GENERAL]
+            EffectSearchPaths=.\\Shaders
+            IntermediateCachePath=C:\\users\\steamuser\\AppData\\Local\\Temp\\ReShade
+            NoDebugInfo=1
+            NoEffectCache=0
+            NoReloadOnInit=0
+            PerformanceMode=0
+            PreprocessorDefinitions=
+            PresetPath=.\\ReShadePreset.ini
+            PresetShortcutKeys=
+            PresetShortcutPaths=
+            PresetTransitionDuration=1000
+            SkipLoadingDisabledEffects=0
+            StartupPresetPath=
+            TextureSearchPaths=.\\Textures
+        """
+
+        with open(self.reshade_ini) as file:
+            reshade_ini_content = file.read()
+
+        if len(reshade_ini_content) <= 0:
+            with open(self.reshade_ini, "w") as file:
+                file.write(ini_data)
 
     def prepare_dll(self) -> None:
         reshade_dll: str = "ReShade64.dll" if self.game_arch == "64-bit" else "ReShade32.dll"
