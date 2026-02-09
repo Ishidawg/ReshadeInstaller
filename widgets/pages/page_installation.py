@@ -104,7 +104,7 @@ class PageInstallation(QWidget):
         self.install_worker: InstallationWorker = InstallationWorker(
             self.game_path, self.game_api)
 
-        self.install_thread.moveToThread(self.install_thread)
+        self.install_worker.moveToThread(self.install_thread)
 
         # start and ath the end, finished, are built-in thread signals
         self.install_thread.started.connect(self.install_worker.run)

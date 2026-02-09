@@ -1,6 +1,7 @@
 import os
 import shutil
 import zipfile
+import asyncio
 
 from pathlib import Path
 from PySide6.QtCore import (
@@ -77,7 +78,8 @@ class ShadersWorker(QObject):
 
     def run(self) -> None:
         self.clean_temp()
-        self.install_shaders()
+        # self.install_shaders()
+        asyncio.run(self.install_shaders())
         self.organize_files(self.game_path, self.shader_dir, self.texture_dir)
         self.clean_temp()
 
@@ -85,7 +87,7 @@ class ShadersWorker(QObject):
         if Path(self.shader_temp_directory).exists():
             shutil.rmtree(self.shader_temp_directory)
 
-    def unzip_shader(self, shader_temp_dir: str, repo_name: str, zipped_dir: str) -> None:
+    async def unzip_shader(self, shader_temp_dir: str, repo_name: str, zipped_dir: str) -> None:
         extracted_shader_dir: str = os.path.join(shader_temp_dir, repo_name)
         os.makedirs(extracted_shader_dir, exist_ok=True)
 
@@ -95,7 +97,7 @@ class ShadersWorker(QObject):
         except Exception as e:
             raise IOError(f"Failed to unzip: {e}") from e
 
-    def download_shaders(self, shader_url: str, zipped_shader_dir: str) -> None:
+    async def download_shaders(self, shader_url: str, zipped_shader_dir: str) -> None:
         try:
             context: ssl.SSLContext = ssl.create_default_context(
                 cafile=certifi.where())
@@ -109,7 +111,7 @@ class ShadersWorker(QObject):
         except Exception as e:
             raise IOError(f"Clone reshade failed: {e}") from e
 
-    def install_shaders(self) -> None:
+    async def install_shaders(self) -> None:
         if not self.game_path:
             raise ValueError("Path error")
 
@@ -134,9 +136,7 @@ class ShadersWorker(QObject):
                 zipped_shader_dir: str = os.path.join(
                     self.shader_temp_directory, f"{repo_name}.zip")
 
-                self.download_shaders(shader_url, zipped_shader_dir)
-                self.unzip_shader(self.shader_temp_directory,
-                                  repo_name, zipped_shader_dir)
+                await asyncio.gather(self.download_shaders(shader_url, zipped_shader_dir), self.unzip_shader(self.shader_temp_directory, repo_name, zipped_shader_dir))
 
                 current_repo += 1
         except Exception as e:

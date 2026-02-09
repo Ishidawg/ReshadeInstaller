@@ -69,7 +69,7 @@ class PageDownload(QWidget):
         self.download_worker: DownloadWorker = DownloadWorker(
             self.reshade_version.currentText(), self.reshade_release.currentText())
 
-        self.download_thread.moveToThread(self.download_thread)
+        self.download_worker.moveToThread(self.download_thread)
 
         # start and at the end, finished, are built-in thread signals
         # self.download_thread.started.connect(self.start_animation)
