@@ -53,6 +53,9 @@ class PageClone(QWidget):
         self.cxb_list: list[QCheckBox] = [self.cxb_crosire_slim, self.cxb_crosire_legacy, self.cxb_sweet_fx, self.cxb_prod80,
                                           self.cxb_quint, self.cxb_immerse, self.cxb_mlut, self.cxb_insane, self.cxb_retro_arch, self.cxb_crt_royale, self.cxb_glamarye]
 
+        # Makes it comes checked because of ReShade.fxh
+        self.cxb_crosire_slim.setChecked(True)
+
         for cxb in self.cxb_list:
             layout_checkboxes.addWidget(cxb)
 
