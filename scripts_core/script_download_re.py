@@ -1,6 +1,5 @@
 import os
 import glob
-import shutil
 from pathlib import Path
 from PySide6.QtCore import (
     QObject,
@@ -21,8 +20,6 @@ from scripts_core.script_prepare_re import unzip_reshade
 PATTERN: str = "ReShade_Setup*.exe"
 DOWNLOAD_PATH: str = QStandardPaths.writableLocation(
     QStandardPaths.StandardLocation.DownloadLocation)
-CACHE_PATH: str = QStandardPaths.writableLocation(
-    QStandardPaths.StandardLocation.CacheLocation)
 
 
 class DownloadWorker(QObject):
@@ -48,16 +45,10 @@ class DownloadWorker(QObject):
         self.perhaps_dir = self.prevent_download()
 
         self.ensure_reshade()
-        self.clean_cache()
-
         # debug matters
         # print(self.reshade_dir)
         # print(f"dir: {self.reshade_dir.split("/")[-1]}")
         # print(f"url: {self.reshade_url.split("/")[-1]}")
-
-    def clean_cache(self) -> None:
-        if Path(CACHE_PATH).exists():
-            shutil.rmtree(CACHE_PATH)
 
     def build_url(self) -> None:
         try:
