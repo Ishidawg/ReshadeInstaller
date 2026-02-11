@@ -62,7 +62,6 @@ class MainWindow(QMainWindow):
         self.page_installation: PageInstallation = PageInstallation()
         self.page_clone: PageClone = PageClone()
         self.page_dx8: PageDX8 = PageDX8()
-        self.page_uninstall: PageUninstall = PageUninstall()
 
         self.pages: list[QWidget] = [self.page_start,
                                      self.page_download, self.page_installation, self.page_clone]
@@ -220,6 +219,7 @@ class MainWindow(QMainWindow):
 
     @Slot(bool)
     def on_uninstall_clicked(self, value: bool) -> None:
+        self.page_uninstall: PageUninstall = PageUninstall()
         self.insert_page(self.page_uninstall)
         print(f"Clicked {value}")
 

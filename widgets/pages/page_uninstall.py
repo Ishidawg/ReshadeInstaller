@@ -44,27 +44,26 @@ class PageUninstall(QWidget):
         layout.addWidget(self.btn_uninstall)
         self.setLayout(layout)
 
-    def add_items(self, games, widget_list):
-        index = 1
+    def add_items(self, games: list[str], widget_list: QListWidget):
+        index: int = 1
 
         for game in games:
-            newItem = QListWidgetItem()
+            newItem: QListWidgetItem = QListWidgetItem()
             newItem.setText(game)
             widget_list.insertItem(index, newItem)
 
             index = index + 1
 
-    def uninstall_reshade(self, widget_list, dir_list):
-
+    def uninstall_reshade(self, widget_list: QListWidget, dir_list: list[str]):
         try:
-            current_row = widget_list.currentRow()
-            game_path = dir_list[current_row]
+            current_row: int = widget_list.currentRow()
+            game_path: str = dir_list[current_row]
 
-            shaders_dir = os.path.join(game_path, "Shaders")
-            textures_dir = os.path.join(game_path, "Textures")
+            shaders_dir: str = os.path.join(game_path, "Shaders")
+            textures_dir: str = os.path.join(game_path, "Textures")
 
-            files_tbr = ["opengl32.dll", "d3d8.dll", "d3d9.dll",
-                         "d3d10.dll", "d3d11.dll", "dxgi.dll", "d3dcompiler_47.dll", "ReShade.ini", "ReShade.log", "ReShadePreset.ini"]
+            files_tbr: list[str] = ["opengl32.dll", "d3d8.dll", "d3d9.dll",
+                                    "d3d10.dll", "d3d11.dll", "dxgi.dll", "d3dcompiler_47.dll", "ReShade.ini", "ReShade.log", "ReShadePreset.ini"]
 
             if os.path.exists(shaders_dir) and os.path.exists(textures_dir):
                 shutil.rmtree(shaders_dir)
@@ -78,8 +77,5 @@ class PageUninstall(QWidget):
             widget_list.takeItem(current_row)
 
             update_manager(current_row)
-
-            print(current_row)
-            print(game_path)
         except IndexError as e:
             print(e)
