@@ -11,11 +11,13 @@ from PySide6.QtCore import Qt
 
 
 class PageDX8(QWidget):
-    def __init__(self):
+    def __init__(self, game_param: str | None = None):
         super().__init__()
 
         self.clipboard = QApplication.clipboard()
-        game_name: str = ''
+        # game_name: str = game_name_param if game_name_param else "Your game"
+
+        self.game_name: str | None = game_param
 
         # create layout
         layout = QVBoxLayout()
@@ -30,7 +32,7 @@ class PageDX8(QWidget):
 
         # create widgets
         label_description = QLabel(
-            f"{game_name} uses Direct3D 8.0 as rendering api, so you need to set environment varibles on steam, heroic games or whatever the launcher you use. If your game is on steam, you just need to set the command bellow as launch options.")
+            f"{self.game_name} uses Direct3D 8.0 as rendering api, so you need to set environment varibles on steam, heroic games or whatever the launcher you use. If your game is on steam, you just need to set the command bellow as launch options.")
         label_description.setStyleSheet("font-size: 12pt; font-weight: 100")
         label_description.setWordWrap(True)
 

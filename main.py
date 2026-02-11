@@ -1,4 +1,5 @@
 import sys
+import os
 
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import (
@@ -82,6 +83,14 @@ class MainWindow(QMainWindow):
 
     def get_game_directory(self, value: str) -> None:
         self.game_directory = value
+        self.format_game_name(self.game_directory)
+
+    def format_game_name(self, game_dir) -> None:
+        if game_dir:
+            game_base_name = os.path.basename(game_dir)
+            self.game_name = os.path.splitext(game_base_name)[0]
+
+            self.page_dx8 = PageDX8(self.game_name)
 
     def get_is_dx8(self, value: bool) -> None:
         if value:
