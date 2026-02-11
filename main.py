@@ -1,7 +1,9 @@
+import shutil
 import sys
 import os
 
 from enum import IntEnum
+from pathlib import Path
 
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import (
@@ -19,6 +21,8 @@ from widgets.pages.page_installation import PageInstallation
 from widgets.pages.page_clone import PageClone
 from widgets.pages.page_dx8 import PageDX8
 from widgets.widget_bottom_buttons import WidgetBottomButtons
+
+from scripts_core.script_prepare_re import EXTRACT_PATH
 
 
 class Pages(IntEnum):
@@ -157,7 +161,7 @@ class MainWindow(QMainWindow):
             return
 
     def update_next_button(self) -> None:
-        if self.pages_index == 3 and not self.is_dx8 or self.pages_index == 4:
+        if self.pages_index == Pages.CLONE and not self.is_dx8 or self.pages_index == Pages.WRAPPER:
             self.action_buttons.btn_next.setText("Close")
             self.action_buttons.btn_next.clicked.disconnect()
             self.action_buttons.btn_next.clicked.connect(self.close)
@@ -199,6 +203,10 @@ class MainWindow(QMainWindow):
         self.layout_dynamic.removeWidget(self.page_start)
         self.layout_dynamic.removeWidget(self.page_download)
         self.layout_dynamic.addWidget(self.current_page)
+
+    def clean_cache(self) -> None:
+        if Path(EXTRACT_PATH).exists():
+            shutil.rmtree(EXTRACT_PATH)
 
     # Signals connections
     @Slot(bool)
@@ -242,6 +250,10 @@ class MainWindow(QMainWindow):
     def get_game_directory(self, value: str) -> None:
         self.game_directory = value
         self.format_game_name(self.game_directory)
+
+    @Slot()
+    def closeEvent(self, event) -> None:
+        self.clean_cache()
 
 
 if __name__ == "__main__":

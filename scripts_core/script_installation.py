@@ -57,16 +57,11 @@ class InstallationWorker(QObject):
 
         self.status_update()
 
-    def clean_cache(self) -> None:
-        if Path(EXTRACT_PATH).exists():
-            shutil.rmtree(EXTRACT_PATH)
-
     def status_update(self) -> None:
         if self.game_path and self.game_api and self.game_arch and self.reshade_path:
             self.install_progress.emit(100)
             self.install_finished.emit(True)
             self.current_game_path.emit(self.game_path_parent)
-            # self.clean_cache()
         else:
             self.install_progress.emit(0)
             self.install_finished.emit(False)
