@@ -20,9 +20,11 @@ from widgets.pages.page_download import PageDownload
 from widgets.pages.page_installation import PageInstallation
 from widgets.pages.page_clone import PageClone
 from widgets.pages.page_dx8 import PageDX8
+from widgets.pages.page_uninstall import PageUninstall
 from widgets.widget_bottom_buttons import WidgetBottomButtons
 
 from scripts_core.script_prepare_re import EXTRACT_PATH
+from scripts_core.script_manager import create_manager, add_game
 
 
 class Pages(IntEnum):
@@ -60,6 +62,7 @@ class MainWindow(QMainWindow):
         self.page_installation: PageInstallation = PageInstallation()
         self.page_clone: PageClone = PageClone()
         self.page_dx8: PageDX8 = PageDX8()
+        self.page_uninstall: PageUninstall = PageUninstall()
 
         self.pages: list[QWidget] = [self.page_start,
                                      self.page_download, self.page_installation, self.page_clone]
@@ -105,12 +108,6 @@ class MainWindow(QMainWindow):
     def on_clone(self) -> None:
         self.page_clone.on_install(self.game_directory)
 
-    def on_home_clicked(self) -> None:
-        self.pages_index = 0
-        self.update_buttons()
-        self.layout_dynamic.removeWidget(self.current_page)
-        self.layout_dynamic.addWidget(self.page_start)
-
     def on_back_clicked(self) -> None:
         self.change_page(0)
 
@@ -130,6 +127,7 @@ class MainWindow(QMainWindow):
         match self.pages_index:
             case Pages.START:
                 self.change_button_visibilty(False)
+                create_manager()
             case Pages.DOWNLOAD:
                 if self.download_finished:
                     self.enable_next_button()
@@ -140,6 +138,8 @@ class MainWindow(QMainWindow):
             case Pages.CLONE:
                 if self.clone_finished:
                     self.enable_next_button()
+
+                    add_game(self.game_directory)
 
                     if self.is_dx8:
                         self.manage_dx8_page(True)
@@ -198,11 +198,15 @@ class MainWindow(QMainWindow):
         self.update_buttons()
         self.insert_page()
 
-    def insert_page(self) -> None:
+    def insert_page(self, page: QWidget | None = None) -> None:
         self.layout_dynamic.removeWidget(self.current_page)
         self.layout_dynamic.removeWidget(self.page_start)
         self.layout_dynamic.removeWidget(self.page_download)
-        self.layout_dynamic.addWidget(self.current_page)
+
+        if page:
+            self.layout_dynamic.addWidget(page)
+        else:
+            self.layout_dynamic.addWidget(self.current_page)
 
     def clean_cache(self) -> None:
         if Path(EXTRACT_PATH).exists():
@@ -216,6 +220,7 @@ class MainWindow(QMainWindow):
 
     @Slot(bool)
     def on_uninstall_clicked(self, value: bool) -> None:
+        self.insert_page(self.page_uninstall)
         print(f"Clicked {value}")
 
     @Slot(bool)
