@@ -26,15 +26,19 @@ class PageDX8(QWidget):
         layout_steam = QHBoxLayout()
         layout_other = QHBoxLayout()
 
+        layout_steam.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        layout_other.setAlignment(Qt.AlignmentFlag.AlignLeft)
+
         # Set style
         style_code = "color: #E83C91; padding: 5px; font-style: italic;"
         style_font = "font 12pt; font-weight: 600; padding: 5px; margin: 5px;"
 
         # create widgets
         label_description = QLabel(
-            f"{self.game_name} uses Direct3D 8.0 as rendering api, so you need to set environment varibles on steam, heroic games or whatever the launcher you use. If your game is on steam, you just need to set the command bellow as launch options.")
+            f"<html><strong>{self.game_name}</strong> uses Direct3D 8.0 as rendering api, so you need to set environment varibles on steam, heroic games or whatever the launcher you use. If your game is on steam, you just need to set the command bellow as launch options.</hmtl>")
         label_description.setStyleSheet("font-size: 12pt; font-weight: 100")
         label_description.setWordWrap(True)
+        label_description.setAlignment(Qt.AlignmentFlag.AlignJustify)
 
         self.steam_command = QLabel(
             f"<html><strong>Steam: <span style='{style_code}'>WINEDLLOVERRIDES='d3d8=n,b' %command%</span></strong></html>")
@@ -51,6 +55,7 @@ class PageDX8(QWidget):
 
         # add widgets
         layout.addWidget(label_description)
+        layout.addSpacing(12)
 
         layout_steam.addWidget(self.steam_command)
         layout_steam.addWidget(self.btn_steam)

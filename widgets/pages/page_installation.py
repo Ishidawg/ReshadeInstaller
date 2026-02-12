@@ -38,7 +38,8 @@ class PageInstallation(QWidget):
 
         layout_browse = QHBoxLayout()
         layout_api = QGridLayout()
-        layout_api.setSpacing(10)
+        layout_api.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout_api.setSpacing(20)
 
         # create widgets
         label_exe = QLabel("Select game executable")
@@ -74,6 +75,7 @@ class PageInstallation(QWidget):
         layout_browse.addWidget(self.browse_input)
         layout_browse.addWidget(self.browse_button)
         layout.addLayout(layout_browse)
+        layout.addSpacing(10)
 
         layout_api.addWidget(self.radio_opengl, 0, 0)
         layout_api.addWidget(self.radio_d3d8, 0, 1)
@@ -82,6 +84,7 @@ class PageInstallation(QWidget):
         layout_api.addWidget(self.radio_d3d11, 1, 1)
         layout_api.addWidget(self.radio_vulkan, 1, 2)
         layout.addLayout(layout_api)
+        layout.addSpacing(10)
 
         layout.addWidget(self.progress_bar)
         layout.addWidget(self.btn_install)

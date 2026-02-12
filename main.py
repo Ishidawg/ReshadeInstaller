@@ -54,6 +54,7 @@ class MainWindow(QMainWindow):
         widget_dinamic = QWidget()
         self.layout_dynamic = QStackedLayout()
         widget_dinamic.setLayout(self.layout_dynamic)
+        widget_dinamic.setContentsMargins(50, 0, 50, 0)
 
         # Instance widgets, set widget and related
         self.action_buttons: WidgetBottomButtons = WidgetBottomButtons()

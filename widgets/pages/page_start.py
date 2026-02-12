@@ -27,6 +27,7 @@ class PageStart(QWidget):
             "LeShade is a manager for reshade installations on Linux. It's a native tool that can manage multiple reshade versions across many games that uses Proton or Wine.")
         label_description.setStyleSheet("font-size: 12pt; font-weight: 100")
         label_description.setWordWrap(True)
+        label_description.setAlignment(Qt.AlignmentFlag.AlignJustify)
 
         self.btn_install = QPushButton("Install")
         self.btn_uninstall = QPushButton("Uninstall")
@@ -36,6 +37,7 @@ class PageStart(QWidget):
 
         # add widgets
         layout.addWidget(label_description)
+        layout.addSpacing(12)
 
         layout_buttons.addWidget(self.btn_install)
         layout_buttons.addWidget(self.btn_uninstall)
