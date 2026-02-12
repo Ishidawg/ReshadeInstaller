@@ -73,6 +73,9 @@ class MainWindow(QMainWindow):
         self.clone_finished: bool = False
         self.is_dx8: bool = False
 
+        # tracks uninstall page
+        self.is_uninstall: bool = False
+
         self.layout_dynamic.addWidget(self.page_start)
 
         # Connect signals (if there is signals)
@@ -166,6 +169,7 @@ class MainWindow(QMainWindow):
 
     def manage_uninstall_page(self, value: bool) -> None:
         if value:
+            self.is_uninstall = value
             self.page_uninstall: PageUninstall = PageUninstall()
             self.insert_page(self.page_uninstall)
             return
@@ -216,7 +220,9 @@ class MainWindow(QMainWindow):
         self.layout_dynamic.removeWidget(self.current_page)
         self.layout_dynamic.removeWidget(self.page_start)
         self.layout_dynamic.removeWidget(self.page_download)
-        self.layout_dynamic.removeWidget(self.page_uninstall)
+
+        if self.is_uninstall:
+            self.layout_dynamic.removeWidget(self.page_uninstall)
 
         if page:
             self.layout_dynamic.addWidget(page)
