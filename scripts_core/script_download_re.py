@@ -7,11 +7,8 @@ from PySide6.QtCore import (
     Signal
 )
 
-import urllib.request
-import ssl
-import certifi
-
 from scripts_core.script_prepare_re import unzip_reshade
+from utils.utils import generic_download
 
 # URL examples
 # https://reshade.me/downloads/ReShade_Setup_6.7.1.exe
@@ -115,13 +112,7 @@ class DownloadWorker(QObject):
                 file_name: str = self.reshade_url.split('/')[-1]
                 directory: str = os.path.join(DOWNLOAD_PATH, file_name)
 
-                context: ssl.SSLContext = ssl.create_default_context(
-                    cafile=certifi.where())
-                req: urllib.request.Request = urllib.request.Request(self.reshade_url, headers={
-                    'User-Agent': 'Chrome/120.0.0.0'})
+                generic_download(self.reshade_url, directory)
 
-                with urllib.request.urlopen(req, context=context) as res:
-                    with open(directory, "wb") as file:
-                        file.write(res.read())
             except Exception as e:
                 raise IOError(f"Failed to download: {e}") from e

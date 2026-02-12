@@ -1,10 +1,6 @@
 import os
 from pathlib import Path
 
-import urllib.request
-import ssl
-import certifi
-
 from utils.utils import generic_download
 
 URL_COMPILER = "https://github.com/Ishidawg/reshade-installer-linux/raw/main/d3dcompiler_dll"

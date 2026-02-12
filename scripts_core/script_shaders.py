@@ -9,9 +9,7 @@ from PySide6.QtCore import (
     Signal
 )
 
-import urllib.request
-import ssl
-import certifi
+from utils.utils import generic_download
 
 REPO_SHADERS = {
     "Crosire slim": {
@@ -99,15 +97,7 @@ class ShadersWorker(QObject):
 
     async def download_shaders(self, shader_url: str, zipped_shader_dir: str) -> None:
         try:
-            context: ssl.SSLContext = ssl.create_default_context(
-                cafile=certifi.where())
-
-            req: urllib.request.Request = urllib.request.Request(
-                shader_url, headers={'User-Agent': 'Chrome/121.0.0.0'})
-
-            with urllib.request.urlopen(req, context=context) as res:
-                with open(zipped_shader_dir, 'wb') as file:
-                    file.write(res.read())
+            generic_download(shader_url, zipped_shader_dir)
         except Exception as e:
             raise IOError(f"Clone reshade failed: {e}") from e
 
