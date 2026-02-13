@@ -6,6 +6,7 @@ from enum import IntEnum
 from pathlib import Path
 
 from PySide6.QtCore import Slot
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QMainWindow,
     QApplication,
@@ -25,6 +26,16 @@ from widgets.widget_bottom_buttons import WidgetBottomButtons
 
 from utils.utils import EXTRACT_PATH, format_game_name
 from scripts_core.script_manager import create_manager, add_game
+
+
+def get_localdir():
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(
+        os.path.abspath(__file__)))
+
+    if getattr(sys, 'frozen', False):
+        return base_path
+    else:
+        return os.path.dirname(os.path.abspath(__file__))
 
 
 class Pages(IntEnum):
@@ -282,6 +293,12 @@ if __name__ == "__main__":
 
     app.setOrganizationName("Ishidawg")
     app.setApplicationName("LeShade")
+
+    local_dir: str = get_localdir()
+    icon_path: str = os.path.join(local_dir, "assets", "logo.png")
+
+    if os.path.exists(icon_path):
+        app.setWindowIcon(QIcon(icon_path))
 
     window = MainWindow()
     window.show()
