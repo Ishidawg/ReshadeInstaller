@@ -2,7 +2,7 @@ name: Build AppImage
 
 on:
   push:
-    branches: ["rebuild"]
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
