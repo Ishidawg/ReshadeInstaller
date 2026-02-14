@@ -8,7 +8,7 @@
 	</div>
 </div>
 
-*This project started as a university project, and I already mentioned that in the old readme file. The project grew and became a passion project, and now I think it's good to have a new readme file.*
+*This project started as a university project, and I already mentioned that in the [old readme file](https://github.com/Ishidawg/LeShade/blob/main/OLD-README.md). The project grew and became a passion project, and now I think it's good to have a new readme file.*
 
 LeShade is a reshade manager for linux, thinks of a mod manager, but specifically for reshade. It include features like:
 - Common APIs support *(DX9, DX10, DX11, DX1/Vulkan, OpenGL)*
