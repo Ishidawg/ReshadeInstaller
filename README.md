@@ -1,10 +1,14 @@
 <div align="center">
 	<img src="https://raw.githubusercontent.com/Ishidawg/LeShade/refs/heads/rebuild/assets/logo256.png">
 	<h1>LeShade - A Reshade Manager</h1>
+	<div display="flex">
+		<img alt="GitHub License" src="https://img.shields.io/github/license/ishidawg/LeShade">
+		<img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/ishidawg/LeShade/total">
+		<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/ishidawg/LeShade">
+	</div>
 </div>
 
 *This project started as a university project, and I already mentioned that in the old readme file. The project grew and became a passion project, and now I think it's good to have a new readme file.*
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/ishidawg/reshade-installer-linux/total)
 
 LeShade is a reshade manager for linux, thinks of a mod manager, but specifically for reshade. It include features like:
 - Common APIs support *(DX9, DX10, DX11, DX1/Vulkan, OpenGL)*
